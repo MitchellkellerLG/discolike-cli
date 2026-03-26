@@ -1,0 +1,11 @@
+{
+  "domain": "example-agency.com",
+  "name": "Example Agency",
+  "score": 450,
+  "status": "active",
+  "description": "B2B lead generation agency specializing in cold email",
+  "address": {"city": "Austin", "state": "TX", "country": "US"},
+  "public_emails": ["hello@example-agency.com"],
+  "social_urls": {"linkedin": "https://linkedin.com/company/example-agency"},
+  "industry_groups": ["ADVERTISING_AND_MARKETING"]
+}

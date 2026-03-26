@@ -1,0 +1,21 @@
+{
+  "records": [
+    {
+      "domain": "example-agency.com",
+      "name": "Example Agency",
+      "score": 450,
+      "similarity": 92,
+      "employees": "51-200",
+      "description": "B2B lead generation agency"
+    },
+    {
+      "domain": "outbound-pros.com",
+      "name": "Outbound Pros",
+      "score": 380,
+      "similarity": 87,
+      "employees": "11-50",
+      "description": "Cold email outreach platform"
+    }
+  ],
+  "count": 2
+}

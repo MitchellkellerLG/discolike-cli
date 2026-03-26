@@ -1,0 +1,9 @@
+{
+  "query_id": "q_excl_001",
+  "query_name": "Test Exclusion List",
+  "action": "save-exclusion-list",
+  "user_name": "mitch",
+  "mtime": "2026-03-26T10:00:00Z",
+  "domains": ["skip1.com", "skip2.com"],
+  "domain_count": 2
+}

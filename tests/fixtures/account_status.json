@@ -1,0 +1,11 @@
+{
+  "account_status": "active",
+  "plan": "starter",
+  "month_to_date_requests": 42,
+  "month_to_date_records": 350,
+  "month_to_date_spend": 12.50,
+  "max_spend": 99.00,
+  "total_available_spend": 86.50,
+  "carryover_credits": 0,
+  "top_up_credits": 0
+}

@@ -1,0 +1,12 @@
+[
+  {
+    "query_id": "q_abc123",
+    "query_name": "B2B Outbound Agencies - 2026-03",
+    "action": "discover-similar-companies",
+    "user_name": "mitch",
+    "mtime": "2026-03-20T10:30:00Z",
+    "domains": ["agency1.com", "agency2.com"],
+    "domain_count": 2,
+    "query_params": {"country": ["US"]}
+  }
+]

@@ -1,0 +1,9 @@
+{
+  "domain": "example-agency.com",
+  "score_growth_3m": 0.12,
+  "subdomain_growth_3m": 0.05,
+  "score_2025Q4": 420,
+  "score_2026Q1": 450,
+  "subdomains_2025Q4": 8,
+  "subdomains_2026Q1": 10
+}
