@@ -6,6 +6,7 @@ import json
 
 import httpx
 import respx
+
 from discolike.cli import cli
 from tests.conftest import make_cli_runner
 

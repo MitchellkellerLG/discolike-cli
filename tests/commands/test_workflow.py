@@ -7,6 +7,7 @@ from pathlib import Path
 
 import httpx
 import respx
+
 from discolike.cli import cli
 from tests.conftest import load_fixture, make_cli_runner
 
