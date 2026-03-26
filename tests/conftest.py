@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import inspect
 import json
 from pathlib import Path
 
 import pytest
+from click.testing import CliRunner
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
@@ -22,3 +24,10 @@ def mock_config_dir(tmp_path, monkeypatch):
     monkeypatch.setattr("discolike.config.get_config_dir", lambda: tmp_path)
     monkeypatch.setattr("discolike.cache.get_config_dir", lambda: tmp_path)
     monkeypatch.setenv("DISCOLIKE_API_KEY", "dk_test_key")
+
+
+def make_cli_runner() -> CliRunner:
+    """Create a CliRunner with separate stderr capture (Click 8.1 and 8.2+ compatible)."""
+    if "mix_stderr" in inspect.signature(CliRunner.__init__).parameters:
+        return CliRunner(mix_stderr=False)
+    return CliRunner()

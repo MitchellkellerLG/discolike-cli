@@ -7,10 +7,8 @@ from pathlib import Path
 
 import httpx
 import respx
-from click.testing import CliRunner
-
 from discolike.cli import cli
-from tests.conftest import load_fixture
+from tests.conftest import load_fixture, make_cli_runner
 
 BASE_URL = "https://api.discolike.com/v1"
 
@@ -64,7 +62,7 @@ class TestWorkflowDiscover:
     def test_full_workflow_creates_output(self, tmp_path: Path) -> None:
         _mock_discover_workflow()
         output_file = tmp_path / "results.csv"
-        runner = CliRunner(mix_stderr=False)
+        runner = make_cli_runner()
         result = runner.invoke(
             cli,
             [
@@ -83,7 +81,7 @@ class TestWorkflowDiscover:
     def test_workflow_json_output(self, tmp_path: Path) -> None:
         _mock_discover_workflow()
         output_file = tmp_path / "results.json"
-        runner = CliRunner(mix_stderr=False)
+        runner = make_cli_runner()
         result = runner.invoke(
             cli,
             [
@@ -103,7 +101,7 @@ class TestWorkflowDiscover:
     def test_workflow_with_country_filter(self, tmp_path: Path) -> None:
         _mock_discover_workflow()
         output_file = tmp_path / "results.csv"
-        runner = CliRunner(mix_stderr=False)
+        runner = make_cli_runner()
         result = runner.invoke(
             cli,
             [
@@ -121,7 +119,7 @@ class TestWorkflowDiscover:
     def test_workflow_with_save_exclusion(self, tmp_path: Path) -> None:
         _mock_discover_workflow()
         output_file = tmp_path / "results.csv"
-        runner = CliRunner(mix_stderr=False)
+        runner = make_cli_runner()
         result = runner.invoke(
             cli,
             [
@@ -144,7 +142,7 @@ class TestWorkflowDiscover:
     def test_workflow_zero_count_exits_early(self, tmp_path: Path) -> None:
         _mock_discover_workflow(count_response={"count": 0})
         output_file = tmp_path / "results.csv"
-        runner = CliRunner(mix_stderr=False)
+        runner = make_cli_runner()
         result = runner.invoke(
             cli,
             [
@@ -163,7 +161,7 @@ class TestWorkflowDiscover:
         """Verify the correct sequence and count of API calls."""
         _mock_discover_workflow()
         output_file = tmp_path / "results.csv"
-        runner = CliRunner(mix_stderr=False)
+        runner = make_cli_runner()
         result = runner.invoke(
             cli,
             [
@@ -188,7 +186,7 @@ class TestWorkflowDiscover:
     def test_workflow_enrich_top_zero_skips_profiles(self, tmp_path: Path) -> None:
         _mock_discover_workflow()
         output_file = tmp_path / "results.csv"
-        runner = CliRunner(mix_stderr=False)
+        runner = make_cli_runner()
         result = runner.invoke(
             cli,
             [
@@ -209,7 +207,7 @@ class TestWorkflowDiscover:
     def test_workflow_stderr_shows_progress(self, tmp_path: Path) -> None:
         _mock_discover_workflow()
         output_file = tmp_path / "results.csv"
-        runner = CliRunner(mix_stderr=False)
+        runner = make_cli_runner()
         result = runner.invoke(
             cli,
             [
@@ -254,7 +252,7 @@ class TestWorkflowEnrichList:
         input_file.write_text("example-agency.com\noutbound-pros.com\n")
         output_file = tmp_path / "enriched.json"
 
-        runner = CliRunner(mix_stderr=False)
+        runner = make_cli_runner()
         result = runner.invoke(
             cli,
             [
@@ -294,7 +292,7 @@ class TestWorkflowEnrichList:
         input_file.write_text("example-agency.com\n")
         output_file = tmp_path / "enriched.csv"
 
-        runner = CliRunner(mix_stderr=False)
+        runner = make_cli_runner()
         result = runner.invoke(
             cli,
             [
@@ -319,7 +317,7 @@ class TestWorkflowEnrichList:
         input_file.write_text("example-agency.com\n")
         output_file = tmp_path / "enriched.json"
 
-        runner = CliRunner(mix_stderr=False)
+        runner = make_cli_runner()
         result = runner.invoke(
             cli,
             [
@@ -342,7 +340,7 @@ class TestWorkflowEnrichList:
         input_file.write_text("example.com\n")
         output_file = tmp_path / "enriched.json"
 
-        runner = CliRunner(mix_stderr=False)
+        runner = make_cli_runner()
         result = runner.invoke(
             cli,
             [
@@ -360,7 +358,7 @@ class TestWorkflowEnrichList:
         input_file.write_text("# only comments\n")
         output_file = tmp_path / "enriched.json"
 
-        runner = CliRunner(mix_stderr=False)
+        runner = make_cli_runner()
         result = runner.invoke(
             cli,
             [
@@ -399,7 +397,7 @@ class TestWorkflowEnrichList:
         )
         output_file = tmp_path / "enriched.json"
 
-        runner = CliRunner(mix_stderr=False)
+        runner = make_cli_runner()
         result = runner.invoke(
             cli,
             [
@@ -423,7 +421,7 @@ class TestWorkflowEnrichList:
         input_file.write_text("example-agency.com\n")
         output_file = tmp_path / "enriched.json"
 
-        runner = CliRunner(mix_stderr=False)
+        runner = make_cli_runner()
         result = runner.invoke(
             cli,
             [

@@ -6,9 +6,8 @@ import json
 
 import httpx
 import respx
-from click.testing import CliRunner
-
 from discolike.cli import cli
+from tests.conftest import make_cli_runner
 
 BASE_URL = "https://api.discolike.com/v1"
 
@@ -51,28 +50,28 @@ class TestPlanGateStarterDenied:
     """Starter plan should be denied from all plan-gated commands."""
 
     def test_contacts_denied_on_starter(self) -> None:
-        runner = CliRunner(mix_stderr=False)
+        runner = make_cli_runner()
         result = runner.invoke(cli, ["contacts", "--domain", "test.com"])
         assert result.exit_code == 4
         assert "Team" in result.stderr
         assert "contacts" in result.stderr
 
     def test_match_denied_on_starter(self) -> None:
-        runner = CliRunner(mix_stderr=False)
+        runner = make_cli_runner()
         result = runner.invoke(cli, ["match", "Acme Corp"])
         assert result.exit_code == 4
         assert "Team" in result.stderr
         assert "match" in result.stderr
 
     def test_vendors_denied_on_starter(self) -> None:
-        runner = CliRunner(mix_stderr=False)
+        runner = make_cli_runner()
         result = runner.invoke(cli, ["vendors", "test.com"])
         assert result.exit_code == 4
         assert "Team" in result.stderr
         assert "vendors" in result.stderr
 
     def test_subsidiaries_denied_on_starter(self) -> None:
-        runner = CliRunner(mix_stderr=False)
+        runner = make_cli_runner()
         result = runner.invoke(cli, ["subsidiaries", "test.com"])
         assert result.exit_code == 4
         assert "Enterprise" in result.stderr
@@ -91,7 +90,7 @@ class TestPlanGateTeamAllowed:
         respx.get(f"{BASE_URL}/contacts").mock(
             return_value=httpx.Response(200, json=_make_contacts_fixture())
         )
-        runner = CliRunner()
+        runner = make_cli_runner()
         result = runner.invoke(cli, ["--json", "contacts", "--domain", "test.com"])
         assert result.exit_code == 0
         data = json.loads(result.output)
@@ -106,7 +105,7 @@ class TestPlanGateTeamAllowed:
         respx.get(f"{BASE_URL}/match").mock(
             return_value=httpx.Response(200, json=_make_match_fixture())
         )
-        runner = CliRunner()
+        runner = make_cli_runner()
         result = runner.invoke(cli, ["--json", "match", "Acme Corp"])
         assert result.exit_code == 0
         data = json.loads(result.output)
@@ -121,7 +120,7 @@ class TestPlanGateTeamAllowed:
         respx.get(f"{BASE_URL}/vendors").mock(
             return_value=httpx.Response(200, json=_make_vendors_fixture())
         )
-        runner = CliRunner()
+        runner = make_cli_runner()
         result = runner.invoke(cli, ["--json", "vendors", "example-agency.com"])
         assert result.exit_code == 0
         data = json.loads(result.output)
@@ -132,7 +131,7 @@ class TestPlanGateTeamAllowed:
             "discolike.cost.CostTracker.plan",
             property(lambda self: "team"),
         )
-        runner = CliRunner(mix_stderr=False)
+        runner = make_cli_runner()
         result = runner.invoke(cli, ["subsidiaries", "test.com"])
         assert result.exit_code == 4
         assert "Enterprise" in result.stderr
@@ -150,7 +149,7 @@ class TestPlanGateEnterpriseAllowed:
         respx.get(f"{BASE_URL}/contacts").mock(
             return_value=httpx.Response(200, json=_make_contacts_fixture())
         )
-        runner = CliRunner()
+        runner = make_cli_runner()
         result = runner.invoke(cli, ["--json", "contacts", "--domain", "test.com"])
         assert result.exit_code == 0
 
@@ -163,7 +162,7 @@ class TestPlanGateEnterpriseAllowed:
         respx.get(f"{BASE_URL}/subsidiaries").mock(
             return_value=httpx.Response(200, json=_make_subsidiaries_fixture())
         )
-        runner = CliRunner()
+        runner = make_cli_runner()
         result = runner.invoke(cli, ["--json", "subsidiaries", "bigcorp.com"])
         assert result.exit_code == 0
         data = json.loads(result.output)
@@ -174,7 +173,7 @@ class TestPlanGateErrorMessage:
     """Plan gate should produce clear error messages."""
 
     def test_error_message_includes_command_and_plans(self) -> None:
-        runner = CliRunner(mix_stderr=False)
+        runner = make_cli_runner()
         result = runner.invoke(cli, ["contacts", "--domain", "test.com"])
         assert result.exit_code == 4
         # Should mention the command
@@ -185,7 +184,7 @@ class TestPlanGateErrorMessage:
         assert "Starter" in result.stderr
 
     def test_json_error_output(self) -> None:
-        runner = CliRunner()
+        runner = make_cli_runner()
         result = runner.invoke(cli, ["--json", "contacts", "--domain", "test.com"])
         assert result.exit_code == 4
         data = json.loads(result.output)

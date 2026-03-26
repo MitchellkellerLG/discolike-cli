@@ -10,7 +10,7 @@ from click.testing import CliRunner
 
 from discolike.cli import cli
 from discolike.commands.discover import collect_filters
-from tests.conftest import load_fixture
+from tests.conftest import load_fixture, make_cli_runner
 
 BASE_URL = "https://api.discolike.com/v1"
 
@@ -130,8 +130,7 @@ class TestCountCommand:
         runner = CliRunner()
         result = runner.invoke(cli, ["count", "-d", "tiny-niche.com"])
         assert result.exit_code == 0
-        # Warning should be printed (to stderr, but CliRunner mix_stderr=False by default
-        # captures stderr separately)
+        # Warning should be printed to stderr (CliRunner separates stderr by default)
 
     @respx.mock
     def test_count_high_threshold_warning(self) -> None:
@@ -172,7 +171,7 @@ class TestCountCommand:
     @respx.mock
     def test_count_dry_run(self) -> None:
         """Dry run should NOT make HTTP calls."""
-        runner = CliRunner(mix_stderr=False)
+        runner = make_cli_runner()
         result = runner.invoke(cli, ["--dry-run", "--json", "count", "-d", "test.com"])
         assert result.exit_code == 0
         data = json.loads(result.output)
