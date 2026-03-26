@@ -168,7 +168,6 @@ class TestCountCommand:
         url = str(route.calls[0].request.url)
         assert "employee_range=51-200" in url
 
-    @respx.mock
     def test_count_dry_run(self) -> None:
         """Dry run should NOT make HTTP calls."""
         runner = make_cli_runner()
