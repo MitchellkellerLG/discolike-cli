@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import inspect
 import json
 from pathlib import Path
 
@@ -18,16 +17,14 @@ def load_fixture(name: str) -> dict | list:
         return json.load(f)
 
 
+def make_cli_runner() -> CliRunner:
+    """Create a CliRunner with separate stderr capture."""
+    return CliRunner(mix_stderr=False)
+
+
 @pytest.fixture(autouse=True)
 def mock_config_dir(tmp_path, monkeypatch):
     """Redirect config dir to tmp_path for all tests so no real ~/.discolike is touched."""
     monkeypatch.setattr("discolike.config.get_config_dir", lambda: tmp_path)
     monkeypatch.setattr("discolike.cache.get_config_dir", lambda: tmp_path)
     monkeypatch.setenv("DISCOLIKE_API_KEY", "dk_test_key")
-
-
-def make_cli_runner() -> CliRunner:
-    """Create a CliRunner with separate stderr capture (Click 8.1 and 8.2+ compatible)."""
-    if "mix_stderr" in inspect.signature(CliRunner.__init__).parameters:
-        return CliRunner(mix_stderr=False)
-    return CliRunner()
