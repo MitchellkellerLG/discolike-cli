@@ -10,6 +10,8 @@ export DISCOLIKE_API_KEY="dk_..."
 discolike --version
 ```
 
+See **[SETUP.md](SETUP.md)** for the full setup walkthrough (prerequisites, config options, first commands, troubleshooting).
+
 ## Quick Start
 
 ```bash
