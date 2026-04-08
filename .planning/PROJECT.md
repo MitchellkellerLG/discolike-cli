@@ -27,6 +27,7 @@ The feedback loop between Claude Code's client context and DiscoLike's search mo
 - ✓ Config management (`config show/set/clear`) — v1
 - ✓ Account status and usage (`account status/usage`) — v1
 - ✓ Agent-native design (SKILL.md, structured exit codes, `_meta` blocks) — v1
+- ✓ Shared async task infrastructure (AsyncTaskManager, SQLite persistence, client submit/status/cancel, Ctrl+C safety, backoff polling) — Phase 1
 
 ### Active
 
@@ -108,4 +109,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-08 after initialization*
+*Last updated: 2026-04-08 after Phase 1 completion*
