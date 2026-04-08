@@ -42,6 +42,17 @@ class CacheManager:
                 created_at REAL NOT NULL
             )
         """)
+        self._conn.execute("""
+            CREATE TABLE IF NOT EXISTS tasks (
+                task_id TEXT PRIMARY KEY,
+                endpoint TEXT NOT NULL,
+                status TEXT NOT NULL,
+                submitted_at REAL NOT NULL,
+                last_polled_at REAL,
+                params_json TEXT,
+                error_message TEXT
+            )
+        """)
         self._conn.commit()
 
     def get(self, key: str, ttl: int) -> str | None:
@@ -140,6 +151,72 @@ class CacheManager:
         cursor = self._conn.execute("DELETE FROM costs")
         self._conn.commit()
         return cursor.rowcount
+
+    # --- Task persistence ---
+
+    def save_task(self, task_id: str, endpoint: str, params_json: str | None = None) -> None:
+        """Persist a task record. Must be called BEFORE first poll (D-03)."""
+        self._conn.execute(
+            "INSERT OR REPLACE INTO tasks "
+            "(task_id, endpoint, status, submitted_at, params_json) VALUES (?, ?, ?, ?, ?)",
+            (task_id, endpoint, "in_progress", time.time(), params_json),
+        )
+        self._conn.commit()
+
+    def update_task_status(
+        self, task_id: str, status: str, error_message: str | None = None
+    ) -> None:
+        """Update task status and last_polled_at timestamp."""
+        self._conn.execute(
+            "UPDATE tasks SET status = ?, last_polled_at = ?, error_message = ? WHERE task_id = ?",
+            (status, time.time(), error_message, task_id),
+        )
+        self._conn.commit()
+
+    def get_task(self, task_id: str) -> dict[str, Any] | None:
+        """Get a single task by ID. Returns None if not found."""
+        row = self._conn.execute(
+            "SELECT task_id, endpoint, status, submitted_at, last_polled_at, params_json, error_message "
+            "FROM tasks WHERE task_id = ?",
+            (task_id,),
+        ).fetchone()
+        if row is None:
+            return None
+        return {
+            "task_id": row[0],
+            "endpoint": row[1],
+            "status": row[2],
+            "submitted_at": row[3],
+            "last_polled_at": row[4],
+            "params_json": row[5],
+            "error_message": row[6],
+        }
+
+    def list_tasks(self, status_filter: str | None = None) -> list[dict[str, Any]]:
+        """List tasks, optionally filtered by status."""
+        if status_filter:
+            rows = self._conn.execute(
+                "SELECT task_id, endpoint, status, submitted_at, last_polled_at, params_json, error_message "
+                "FROM tasks WHERE status = ? ORDER BY submitted_at DESC",
+                (status_filter,),
+            ).fetchall()
+        else:
+            rows = self._conn.execute(
+                "SELECT task_id, endpoint, status, submitted_at, last_polled_at, params_json, error_message "
+                "FROM tasks ORDER BY submitted_at DESC"
+            ).fetchall()
+        return [
+            {
+                "task_id": r[0],
+                "endpoint": r[1],
+                "status": r[2],
+                "submitted_at": r[3],
+                "last_polled_at": r[4],
+                "params_json": r[5],
+                "error_message": r[6],
+            }
+            for r in rows
+        ]
 
     def close(self) -> None:
         self._conn.close()

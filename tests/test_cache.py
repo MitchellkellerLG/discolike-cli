@@ -143,6 +143,106 @@ class TestCostPersistence:
         assert [c["endpoint"] for c in costs] == ["first", "second", "third"]
 
 
+class TestTasksPersistence:
+    def test_tasks_table_created_on_init(self, cache: CacheManager) -> None:
+        """Tasks table exists in cache.db alongside cache and costs tables."""
+        row = cache._conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='tasks'"
+        ).fetchone()
+        assert row is not None
+        assert row[0] == "tasks"
+
+    def test_save_task_inserts_row(self, cache: CacheManager) -> None:
+        cache.save_task("task-123", "discogen", '{"domains": ["x.com"]}')
+        task = cache.get_task("task-123")
+        assert task is not None
+        assert task["task_id"] == "task-123"
+        assert task["endpoint"] == "discogen"
+        assert task["status"] == "in_progress"
+        assert task["params_json"] == '{"domains": ["x.com"]}'
+        assert task["submitted_at"] is not None
+
+    def test_save_task_sets_submitted_at(self, cache: CacheManager) -> None:
+        import time
+        before = time.time()
+        cache.save_task("task-ts", "discogen")
+        after = time.time()
+        task = cache.get_task("task-ts")
+        assert task is not None
+        assert before <= task["submitted_at"] <= after
+
+    def test_save_task_replace_existing(self, cache: CacheManager) -> None:
+        """INSERT OR REPLACE: saving same task_id replaces existing row."""
+        cache.save_task("task-123", "discogen", '{"domains": ["x.com"]}')
+        cache.save_task("task-123", "discogen", '{"domains": ["y.com"]}')
+        task = cache.get_task("task-123")
+        assert task is not None
+        assert task["params_json"] == '{"domains": ["y.com"]}'
+
+    def test_get_task_missing_returns_none(self, cache: CacheManager) -> None:
+        result = cache.get_task("nonexistent")
+        assert result is None
+
+    def test_get_task_has_all_keys(self, cache: CacheManager) -> None:
+        cache.save_task("task-keys", "discogen")
+        task = cache.get_task("task-keys")
+        assert task is not None
+        expected_keys = {
+            "task_id", "endpoint", "status", "submitted_at",
+            "last_polled_at", "params_json", "error_message",
+        }
+        assert set(task.keys()) == expected_keys
+
+    def test_update_task_status_sets_status(self, cache: CacheManager) -> None:
+        cache.save_task("task-upd", "discogen")
+        cache.update_task_status("task-upd", "completed")
+        task = cache.get_task("task-upd")
+        assert task is not None
+        assert task["status"] == "completed"
+
+    def test_update_task_status_sets_last_polled_at(self, cache: CacheManager) -> None:
+        import time
+        cache.save_task("task-poll", "discogen")
+        before = time.time()
+        cache.update_task_status("task-poll", "completed")
+        after = time.time()
+        task = cache.get_task("task-poll")
+        assert task is not None
+        assert before <= task["last_polled_at"] <= after
+
+    def test_update_task_status_sets_error_message(self, cache: CacheManager) -> None:
+        cache.save_task("task-err", "discogen")
+        cache.update_task_status("task-err", "failed", "Server error")
+        task = cache.get_task("task-err")
+        assert task is not None
+        assert task["status"] == "failed"
+        assert task["error_message"] == "Server error"
+
+    def test_list_tasks_returns_all(self, cache: CacheManager) -> None:
+        cache.save_task("t1", "discogen")
+        cache.save_task("t2", "validate/icp")
+        cache.save_task("t3", "segment")
+        tasks = cache.list_tasks()
+        assert len(tasks) == 3
+
+    def test_list_tasks_status_filter_matching(self, cache: CacheManager) -> None:
+        cache.save_task("t1", "discogen")
+        cache.save_task("t2", "validate/icp")
+        cache.update_task_status("t2", "completed")
+        in_progress = cache.list_tasks(status_filter="in_progress")
+        assert len(in_progress) == 1
+        assert in_progress[0]["task_id"] == "t1"
+
+    def test_list_tasks_status_filter_nonexistent(self, cache: CacheManager) -> None:
+        cache.save_task("t1", "discogen")
+        result = cache.list_tasks(status_filter="nonexistent")
+        assert result == []
+
+    def test_list_tasks_empty(self, cache: CacheManager) -> None:
+        result = cache.list_tasks()
+        assert result == []
+
+
 class TestCacheClose:
     def test_close(self, tmp_path: Path) -> None:
         db = tmp_path / "close_test.db"
