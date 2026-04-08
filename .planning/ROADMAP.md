@@ -12,7 +12,7 @@ Five phases that transform the one-shot discovery CLI into a closed-loop query r
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Async Infrastructure** - Shared AsyncTaskManager, SQLite task persistence, and client submit/status/cancel methods for all async endpoints
+- [x] **Phase 1: Async Infrastructure** - Shared AsyncTaskManager, SQLite task persistence, and client submit/status/cancel methods for all async endpoints (completed 2026-04-08)
 - [ ] **Phase 2: Async Commands** - `discolike validate` and `discolike discogen` commands with async progress, pre-flight cost estimates, and context mode selection
 - [ ] **Phase 3: OLM Feedback Loop** - `--confirm` flag on `discover`, QueryPlan display, mutable QueryState, convergence gate, and all cost/safety guards
 - [ ] **Phase 4: Segment + Config** - `discolike segment` (Pro+ gated), `discolike llm-providers`, `discolike search-providers`, and `discolike tasks` management
@@ -32,7 +32,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 2 plans
 Plans:
 - [x] 01-01-PLAN.md -- Foundation: types, errors, cache tasks table, client async methods
-- [ ] 01-02-PLAN.md -- AsyncTaskManager: poll/cancel/resume lifecycle
+- [x] 01-02-PLAN.md -- AsyncTaskManager: poll/cancel/resume lifecycle
 
 ### Phase 2: Async Commands
 **Goal**: Users can run AI enrichment and ICP validation against domain lists, see live progress, review results in sorted tables, and pipe discovery output directly into validation
@@ -46,7 +46,7 @@ Plans:
   5. Interim results appear during long-running DiscoGen jobs — user sees progress before the job completes
 **Plans**: 2 plans
 Plans:
-- [ ] 01-01-PLAN.md -- Foundation: types, errors, cache tasks table, client async methods
+- [x] 01-01-PLAN.md -- Foundation: types, errors, cache tasks table, client async methods
 - [ ] 01-02-PLAN.md -- AsyncTaskManager: poll/cancel/resume lifecycle
 
 ### Phase 3: OLM Feedback Loop
@@ -102,7 +102,7 @@ Note: Phases 2, 3, and 4 all depend only on Phase 1 — they can be planned in p
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Async Infrastructure | 1/2 | In Progress|  |
+| 1. Async Infrastructure | 2/2 | Complete   | 2026-04-08 |
 | 2. Async Commands | 0/TBD | Not started | - |
 | 3. OLM Feedback Loop | 0/TBD | Not started | - |
 | 4. Segment + Config | 0/TBD | Not started | - |

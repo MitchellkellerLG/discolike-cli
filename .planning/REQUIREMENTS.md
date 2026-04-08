@@ -9,11 +9,11 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Async Infrastructure
 
-- [ ] **INFRA-01**: Shared AsyncTaskManager handles poll/progress/cancel lifecycle for all async endpoints (DiscoGen, Validate ICP, Segment)
+- [x] **INFRA-01**: Shared AsyncTaskManager handles poll/progress/cancel lifecycle for all async endpoints (DiscoGen, Validate ICP, Segment)
 - [x] **INFRA-02**: SQLite `tasks` table persists task_id before first poll — survives CLI exit, prevents orphaned jobs
 - [x] **INFRA-03**: Client gains submit/status/cancel methods for all async endpoints (`discogen_submit`, `validate_icp_submit`, `segment_submit`, `task_status`, `task_cancel`)
-- [ ] **INFRA-04**: Ctrl+C signal handler prints task_id to stderr and persists state before exit
-- [ ] **INFRA-05**: Polling uses linear-to-capped backoff (3s initial, 15s max, 300s hard timeout)
+- [x] **INFRA-04**: Ctrl+C signal handler prints task_id to stderr and persists state before exit
+- [x] **INFRA-05**: Polling uses linear-to-capped backoff (3s initial, 15s max, 300s hard timeout)
 
 ### OLM Feedback Loop
 
@@ -88,11 +88,11 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INFRA-01 | Phase 1 | Pending |
+| INFRA-01 | Phase 1 | Complete |
 | INFRA-02 | Phase 1 | Complete |
 | INFRA-03 | Phase 1 | Complete |
-| INFRA-04 | Phase 1 | Pending |
-| INFRA-05 | Phase 1 | Pending |
+| INFRA-04 | Phase 1 | Complete |
+| INFRA-05 | Phase 1 | Complete |
 | LOOP-01 | Phase 3 | Pending |
 | LOOP-02 | Phase 3 | Pending |
 | LOOP-03 | Phase 3 | Pending |

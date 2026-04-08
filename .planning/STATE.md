@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 01-async-infrastructure/01-01-PLAN.md
-last_updated: "2026-04-08T20:00:33.339Z"
+status: verifying
+stopped_at: Completed 01-async-infrastructure/01-02-PLAN.md
+last_updated: "2026-04-08T20:04:41.380Z"
 last_activity: 2026-04-08
 progress:
   total_phases: 5
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
-  completed_plans: 1
+  completed_plans: 2
   percent: 0
 ---
 
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-04-08)
 
 Phase: 01 (async-infrastructure) — EXECUTING
 Plan: 2 of 2
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-04-08
 
 Progress: [░░░░░░░░░░] 0%
@@ -53,6 +53,7 @@ Progress: [░░░░░░░░░░] 0%
 
 *Updated after each plan completion*
 | Phase 01-async-infrastructure P01 | 186 | 3 tasks | 6 files |
+| Phase 01-async-infrastructure P02 | 8 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -68,6 +69,8 @@ Recent decisions affecting current work:
 - Never wrap questionary calls inside `rich.live.Live` — event loop conflict
 - [Phase 01-async-infrastructure]: All three async endpoints (DiscoGen, ValidateICP, Segment) poll via shared /discogen/status/{task_id}
 - [Phase 01-async-infrastructure]: INSERT OR REPLACE used for save_task to handle idempotent re-submission
+- [Phase 01-async-infrastructure]: Timeout check positioned before API call (not after sleep) to prevent silent overshooting max_elapsed
+- [Phase 01-async-infrastructure]: resume() resets cache to in_progress before re-polling for consistent list_tasks state
 
 ### Pending Todos
 
@@ -80,6 +83,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-08T20:00:33.336Z
-Stopped at: Completed 01-async-infrastructure/01-01-PLAN.md
+Last session: 2026-04-08T20:04:41.376Z
+Stopped at: Completed 01-async-infrastructure/01-02-PLAN.md
 Resume file: None
