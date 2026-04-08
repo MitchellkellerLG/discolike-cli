@@ -29,7 +29,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. Ctrl+C during an async poll prints the task_id to stderr and exits cleanly (job continues server-side)
   3. Polling backs off from 3s to a 15s cap and hard-stops at 300s with a timeout error
   4. Client exposes `discogen_submit`, `validate_icp_submit`, `segment_submit`, `task_status`, and `task_cancel` methods
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 01-01-PLAN.md -- Foundation: types, errors, cache tasks table, client async methods
+- [ ] 01-02-PLAN.md -- AsyncTaskManager: poll/cancel/resume lifecycle
 
 ### Phase 2: Async Commands
 **Goal**: Users can run AI enrichment and ICP validation against domain lists, see live progress, review results in sorted tables, and pipe discovery output directly into validation
@@ -41,7 +44,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. `discolike discogen --prompt "..." --input domains.csv` shows a pre-flight cost estimate (DiscoLike credits + estimated LLM fees) before submission
   4. `discolike discogen personas --prompt "..." --input contacts.csv` runs against contact persona IDs with correct context modes
   5. Interim results appear during long-running DiscoGen jobs — user sees progress before the job completes
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 01-01-PLAN.md -- Foundation: types, errors, cache tasks table, client async methods
+- [ ] 01-02-PLAN.md -- AsyncTaskManager: poll/cancel/resume lifecycle
 
 ### Phase 3: OLM Feedback Loop
 **Goal**: Users can review and refine the query plan DiscoLike derived from their seed before committing to a full TAM query — explicit convergence gate, cost visibility, and agent-safe TTY guard throughout
@@ -54,7 +60,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. The loop exits only when the user explicitly confirms "run full TAM query" — no silent convergence
   5. Running `--confirm` when stdin is not a TTY raises a UsageError (protects agent/pipe workflows)
   6. `--json` output includes machine-readable query plan so Claude Code agents can participate in the loop
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 01-01-PLAN.md -- Foundation: types, errors, cache tasks table, client async methods
+- [ ] 01-02-PLAN.md -- AsyncTaskManager: poll/cancel/resume lifecycle
 
 ### Phase 4: Segment + Config
 **Goal**: Pro+ users can auto-cluster domain lists into segments, and all users can configure BYOM/BYOS providers and manage in-flight async tasks from the CLI
@@ -65,7 +74,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. `discolike segment --input domains.csv` on a Pro+ account submits, polls, and displays grouped results with segment descriptions
   3. `discolike llm-providers list/create/update/delete/test/set-default` and `discolike search-providers` equivalents all function correctly
   4. `discolike tasks list` shows in-flight and recent completed tasks; `discolike tasks cancel <task_id>` cancels an orphaned job
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 01-01-PLAN.md -- Foundation: types, errors, cache tasks table, client async methods
+- [ ] 01-02-PLAN.md -- AsyncTaskManager: poll/cancel/resume lifecycle
 
 ### Phase 5: Discovery Skill
 **Goal**: A Claude Code agent can run a complete discovery workflow — seed analysis through validated, enriched, segmented results — guided by an interactive skill that uses all v2 CLI commands
@@ -77,7 +89,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Skill guides user through dimension weighting (tighten vs loosen) for each discovery dimension with concrete CLI flag implications
   4. Skill integrates the OLM feedback loop — runs `discolike discover --confirm`, walks through iterations, confirms convergence
   5. Post-discovery pipeline offers guided steps: optional validate → optional DiscoGen enrichment → optional segment
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 01-01-PLAN.md -- Foundation: types, errors, cache tasks table, client async methods
+- [ ] 01-02-PLAN.md -- AsyncTaskManager: poll/cancel/resume lifecycle
 
 ## Progress
 
