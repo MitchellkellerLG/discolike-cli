@@ -187,3 +187,26 @@ class CostMeta(BaseModel):
     cost: CostBreakdown
     cached: bool = False
     timestamp: str = ""
+
+
+# --- Async Tasks ---
+
+
+class TaskSubmitResponse(BaseModel):
+    """Response from any async task submission endpoint."""
+
+    model_config = ConfigDict(extra="allow")
+    task_id: str
+    status: str = "in_progress"
+
+
+class TaskStatusResponse(BaseModel):
+    """Response from task status polling endpoint."""
+
+    model_config = ConfigDict(extra="allow")
+    task_id: str | None = None
+    status: str
+    progress: int | None = None
+    results: list[Any] | dict[str, Any] | None = None
+    error: str | None = None
+    estimated_cost: str | None = None
