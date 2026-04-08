@@ -31,7 +31,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. Client exposes `discogen_submit`, `validate_icp_submit`, `segment_submit`, `task_status`, and `task_cancel` methods
 **Plans**: 2 plans
 Plans:
-- [ ] 01-01-PLAN.md -- Foundation: types, errors, cache tasks table, client async methods
+- [x] 01-01-PLAN.md -- Foundation: types, errors, cache tasks table, client async methods
 - [ ] 01-02-PLAN.md -- AsyncTaskManager: poll/cancel/resume lifecycle
 
 ### Phase 2: Async Commands
@@ -102,7 +102,7 @@ Note: Phases 2, 3, and 4 all depend only on Phase 1 — they can be planned in p
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Async Infrastructure | 0/TBD | Not started | - |
+| 1. Async Infrastructure | 1/2 | In Progress|  |
 | 2. Async Commands | 0/TBD | Not started | - |
 | 3. OLM Feedback Loop | 0/TBD | Not started | - |
 | 4. Segment + Config | 0/TBD | Not started | - |
