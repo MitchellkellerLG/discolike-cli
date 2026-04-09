@@ -210,3 +210,15 @@ class TaskStatusResponse(BaseModel):
     results: list[Any] | dict[str, Any] | None = None
     error: str | None = None
     estimated_cost: str | None = None
+
+
+# --- Validate ICP ---
+
+
+class ValidateResult(BaseModel):
+    """Single domain ICP validation result."""
+
+    domain: str
+    Fit: str  # "yes", "no", "partial"
+    Confidence: str  # "high", "medium", "low"
+    Reasoning: str = ""
