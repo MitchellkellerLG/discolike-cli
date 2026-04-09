@@ -222,3 +222,15 @@ class ValidateResult(BaseModel):
     Fit: str  # "yes", "no", "partial"
     Confidence: str  # "high", "medium", "low"
     Reasoning: str = ""
+
+
+# --- DiscoGen ---
+
+
+class DiscoGenResult(BaseModel):
+    """Single domain DiscoGen enrichment result."""
+
+    model_config = ConfigDict(extra="allow")
+    domain: str | None = None
+    persona_id: str | None = None
+    result: str | dict[str, Any] | None = None

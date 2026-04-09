@@ -31,6 +31,7 @@ class AsyncTaskManager:
         self,
         task_id: str,
         on_status: Callable[[str, int, float], None] | None = None,
+        on_result: Callable[[dict[str, Any], int, float], None] | None = None,
         initial_interval: float = 3.0,
         interval_step: float = 3.0,
         max_interval: float = 15.0,
@@ -41,6 +42,9 @@ class AsyncTaskManager:
         Args:
             task_id: The task to poll.
             on_status: Optional callback(status, attempt, elapsed) for display.
+            on_result: Optional callback(result_dict, attempt, elapsed) called
+                on every poll iteration with the full raw API response. Useful
+                for inspecting interim_results before task completes.
             initial_interval: First sleep interval in seconds (D-11: 3.0).
             interval_step: Increment per iteration (D-11: 3.0).
             max_interval: Cap on sleep interval (D-11: 15.0).
@@ -76,6 +80,9 @@ class AsyncTaskManager:
 
                 if on_status is not None:
                     on_status(status, attempt, elapsed)
+
+                if on_result is not None:
+                    on_result(result, attempt, elapsed)
 
                 if status in ("completed", "complete"):
                     self._cache.update_task_status(task_id, "completed")
