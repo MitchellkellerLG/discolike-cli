@@ -46,8 +46,8 @@ Plans:
   5. Interim results appear during long-running DiscoGen jobs — user sees progress before the job completes
 **Plans**: 2 plans
 Plans:
-- [x] 01-01-PLAN.md -- Foundation: types, errors, cache tasks table, client async methods
-- [ ] 01-02-PLAN.md -- AsyncTaskManager: poll/cancel/resume lifecycle
+- [ ] 02-01-PLAN.md -- Shared domain input helper + validate command (VAL-01..04)
+- [ ] 02-02-PLAN.md -- DiscoGen command group: run + personas with interim display (GEN-01..06)
 
 ### Phase 3: OLM Feedback Loop
 **Goal**: Users can review and refine the query plan DiscoLike derived from their seed before committing to a full TAM query — explicit convergence gate, cost visibility, and agent-safe TTY guard throughout
@@ -62,8 +62,8 @@ Plans:
   6. `--json` output includes machine-readable query plan so Claude Code agents can participate in the loop
 **Plans**: 2 plans
 Plans:
-- [ ] 01-01-PLAN.md -- Foundation: types, errors, cache tasks table, client async methods
-- [ ] 01-02-PLAN.md -- AsyncTaskManager: poll/cancel/resume lifecycle
+- [ ] 03-01-PLAN.md -- [to be planned]
+- [ ] 03-02-PLAN.md -- [to be planned]
 
 ### Phase 4: Segment + Config
 **Goal**: Pro+ users can auto-cluster domain lists into segments, and all users can configure BYOM/BYOS providers and manage in-flight async tasks from the CLI
@@ -76,8 +76,8 @@ Plans:
   4. `discolike tasks list` shows in-flight and recent completed tasks; `discolike tasks cancel <task_id>` cancels an orphaned job
 **Plans**: 2 plans
 Plans:
-- [ ] 01-01-PLAN.md -- Foundation: types, errors, cache tasks table, client async methods
-- [ ] 01-02-PLAN.md -- AsyncTaskManager: poll/cancel/resume lifecycle
+- [ ] 04-01-PLAN.md -- [to be planned]
+- [ ] 04-02-PLAN.md -- [to be planned]
 
 ### Phase 5: Discovery Skill
 **Goal**: A Claude Code agent can run a complete discovery workflow — seed analysis through validated, enriched, segmented results — guided by an interactive skill that uses all v2 CLI commands
@@ -91,8 +91,8 @@ Plans:
   5. Post-discovery pipeline offers guided steps: optional validate → optional DiscoGen enrichment → optional segment
 **Plans**: 2 plans
 Plans:
-- [ ] 01-01-PLAN.md -- Foundation: types, errors, cache tasks table, client async methods
-- [ ] 01-02-PLAN.md -- AsyncTaskManager: poll/cancel/resume lifecycle
+- [ ] 05-01-PLAN.md -- [to be planned]
+- [ ] 05-02-PLAN.md -- [to be planned]
 
 ## Progress
 
@@ -103,7 +103,7 @@ Note: Phases 2, 3, and 4 all depend only on Phase 1 — they can be planned in p
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Async Infrastructure | 2/2 | Complete   | 2026-04-08 |
-| 2. Async Commands | 0/TBD | Not started | - |
+| 2. Async Commands | 0/2 | Planning complete | - |
 | 3. OLM Feedback Loop | 0/TBD | Not started | - |
 | 4. Segment + Config | 0/TBD | Not started | - |
 | 5. Discovery Skill | 0/TBD | Not started | - |
