@@ -72,6 +72,17 @@ class ValidationError(DiscoLikeError):
     exit_code = 6
 
 
+class TaskError(DiscoLikeError):
+    """Async task failed server-side (exit code 1)."""
+    exit_code = 1
+    suggestion = "Check task status with: discolike tasks status <task_id>"
+
+
+class TaskTimeoutError(TaskError):
+    """Async task timed out without completing (exit code 1)."""
+    exit_code = 1
+
+
 def handle_errors(f: F) -> F:
     """Click decorator that catches DiscoLikeError and exits cleanly."""
     @functools.wraps(f)

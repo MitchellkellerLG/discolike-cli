@@ -105,6 +105,8 @@ class DiscoLikeClient:
             try:
                 if method.upper() == "GET":
                     resp = self._client.get(url, params=params)
+                elif method.upper() == "DELETE":
+                    resp = self._client.delete(url)
                 else:
                     resp = self._client.post(url, json=json_body)
 
@@ -433,6 +435,43 @@ class DiscoLikeClient:
         data = self._get_with_params("/subsidiaries", {"domain": domain})
         self._cost.record_call("subsidiaries", 0)
         return data
+
+    # --- Async task methods ---
+
+    def discogen_submit(self, params: dict[str, Any]) -> dict[str, Any]:
+        """POST /discogen/process -> raw response dict including task_id."""
+        if self._dry_run:
+            self._cost.estimate("discogen", 0)
+            return {"task_id": "dry-run-task-id", "status": "in_progress"}
+        return self._post_json("/discogen/process", params)
+
+    def validate_icp_submit(self, params: dict[str, Any]) -> dict[str, Any]:
+        """POST /validate/icp -> raw response dict including task_id."""
+        if self._dry_run:
+            self._cost.estimate("validate/icp", 0)
+            return {"task_id": "dry-run-task-id", "status": "in_progress"}
+        return self._post_json("/validate/icp", params)
+
+    def segment_submit(self, params: dict[str, Any]) -> dict[str, Any]:
+        """POST /segment -> raw response dict including task_id."""
+        if self._dry_run:
+            self._cost.estimate("segment", 0)
+            return {"task_id": "dry-run-task-id", "status": "in_progress"}
+        return self._post_json("/segment", params)
+
+    def task_status(self, task_id: str) -> dict[str, Any]:
+        """GET /discogen/status/{task_id} -> status dict.
+
+        Note: All async endpoints (DiscoGen, Validate ICP, Segment) share
+        /discogen/status/ for polling. The task_id is globally unique.
+        """
+        return self._get_with_params(f"/discogen/status/{task_id}")
+
+    def task_cancel(self, task_id: str) -> dict[str, Any]:
+        """DELETE /discogen/cancel/{task_id} -> cancellation confirmation."""
+        resp = self._request("DELETE", f"/discogen/cancel/{task_id}")
+        result: dict[str, Any] = resp.json()
+        return result
 
 
 def _filters_to_params(filters: dict[str, Any]) -> dict[str, Any]:

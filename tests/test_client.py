@@ -372,6 +372,122 @@ class TestCacheIntegration:
         assert result.count == 42
 
 
+class TestAsyncSubmit:
+    @respx.mock
+    def test_discogen_submit_posts_to_correct_endpoint(
+        self, client: DiscoLikeClient, base_url: str
+    ) -> None:
+        respx.post(f"{base_url}/discogen/process").mock(
+            return_value=httpx.Response(200, json={"task_id": "t-abc", "status": "in_progress"})
+        )
+        result = client.discogen_submit({"domains": ["x.com"], "prompt": "test"})
+        assert result["task_id"] == "t-abc"
+        assert result["status"] == "in_progress"
+
+    @respx.mock
+    def test_validate_icp_submit_posts_to_correct_endpoint(
+        self, client: DiscoLikeClient, base_url: str
+    ) -> None:
+        respx.post(f"{base_url}/validate/icp").mock(
+            return_value=httpx.Response(200, json={"task_id": "t-val", "status": "in_progress"})
+        )
+        result = client.validate_icp_submit({"domains": ["x.com"], "icp_text": "test"})
+        assert result["task_id"] == "t-val"
+
+    @respx.mock
+    def test_segment_submit_posts_to_correct_endpoint(
+        self, client: DiscoLikeClient, base_url: str
+    ) -> None:
+        respx.post(f"{base_url}/segment").mock(
+            return_value=httpx.Response(200, json={"task_id": "t-seg", "status": "in_progress"})
+        )
+        result = client.segment_submit({"domains": ["x.com"]})
+        assert result["task_id"] == "t-seg"
+
+    def test_discogen_submit_dry_run_skips_http(
+        self, dry_client: DiscoLikeClient
+    ) -> None:
+        result = dry_client.discogen_submit({"domains": ["x.com"], "prompt": "test"})
+        assert result["task_id"] == "dry-run-task-id"
+        assert result["status"] == "in_progress"
+
+    def test_validate_icp_submit_dry_run_skips_http(
+        self, dry_client: DiscoLikeClient
+    ) -> None:
+        result = dry_client.validate_icp_submit({"domains": ["x.com"], "icp_text": "test"})
+        assert result["task_id"] == "dry-run-task-id"
+        assert result["status"] == "in_progress"
+
+    def test_segment_submit_dry_run_skips_http(
+        self, dry_client: DiscoLikeClient
+    ) -> None:
+        result = dry_client.segment_submit({"domains": ["x.com"]})
+        assert result["task_id"] == "dry-run-task-id"
+        assert result["status"] == "in_progress"
+
+
+class TestTaskStatus:
+    @respx.mock
+    def test_task_status_gets_shared_endpoint(
+        self, client: DiscoLikeClient, base_url: str
+    ) -> None:
+        """All async task types share /discogen/status/ for polling."""
+        respx.get(f"{base_url}/discogen/status/task-123").mock(
+            return_value=httpx.Response(200, json={"task_id": "task-123", "status": "completed"})
+        )
+        result = client.task_status("task-123")
+        assert result["task_id"] == "task-123"
+        assert result["status"] == "completed"
+
+    @respx.mock
+    def test_task_status_in_progress(
+        self, client: DiscoLikeClient, base_url: str
+    ) -> None:
+        respx.get(f"{base_url}/discogen/status/task-456").mock(
+            return_value=httpx.Response(200, json={"status": "in_progress", "progress": 40})
+        )
+        result = client.task_status("task-456")
+        assert result["status"] == "in_progress"
+        assert result["progress"] == 40
+
+    @respx.mock
+    def test_task_status_still_makes_http_in_dry_run(
+        self, dry_client: DiscoLikeClient, base_url: str
+    ) -> None:
+        """task_status needs real task_ids — should still hit HTTP even in dry_run."""
+        route = respx.get(f"{base_url}/discogen/status/task-real").mock(
+            return_value=httpx.Response(200, json={"status": "completed"})
+        )
+        result = dry_client.task_status("task-real")
+        assert route.call_count == 1
+        assert result["status"] == "completed"
+
+
+class TestTaskCancel:
+    @respx.mock
+    def test_task_cancel_sends_delete(
+        self, client: DiscoLikeClient, base_url: str
+    ) -> None:
+        respx.delete(f"{base_url}/discogen/cancel/task-123").mock(
+            return_value=httpx.Response(200, json={"cancelled": True, "task_id": "task-123"})
+        )
+        result = client.task_cancel("task-123")
+        assert result["cancelled"] is True
+        assert result["task_id"] == "task-123"
+
+    @respx.mock
+    def test_task_cancel_still_makes_http_in_dry_run(
+        self, dry_client: DiscoLikeClient, base_url: str
+    ) -> None:
+        """task_cancel needs real task_ids — should still hit HTTP even in dry_run."""
+        route = respx.delete(f"{base_url}/discogen/cancel/task-real").mock(
+            return_value=httpx.Response(200, json={"cancelled": True})
+        )
+        result = dry_client.task_cancel("task-real")
+        assert route.call_count == 1
+        assert result["cancelled"] is True
+
+
 class TestUsage:
     @respx.mock
     def test_usage_returns_stats(self, client: DiscoLikeClient, base_url: str) -> None:

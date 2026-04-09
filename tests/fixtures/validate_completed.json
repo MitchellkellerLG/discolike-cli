@@ -1,0 +1,13 @@
+{
+  "task_id": "val-test-001",
+  "status": "completed",
+  "results": {
+    "gusto.com": {"Fit": "yes", "Confidence": "high", "Reasoning": "HR platform for SMBs"},
+    "stripe.com": {"Fit": "no", "Confidence": "high", "Reasoning": "Payment processing"},
+    "rippling.com": {"Fit": "yes", "Confidence": "medium", "Reasoning": "HR and IT platform"},
+    "notion.com": {"Fit": "partial", "Confidence": "low", "Reasoning": "Productivity tool with some HR features"},
+    "workday.com": {"Fit": "yes", "Confidence": "low", "Reasoning": "Enterprise HR"},
+    "shopify.com": {"Fit": "no", "Confidence": "medium", "Reasoning": "E-commerce platform"},
+    "zenefits.com": {"Fit": "partial", "Confidence": "high", "Reasoning": "HR benefits platform"}
+  }
+}
