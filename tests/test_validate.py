@@ -19,8 +19,8 @@ def load_fixture(name: str) -> dict:
         return json.load(f)
 
 
-def make_cli_runner() -> CliRunner:
-    return CliRunner()
+def make_cli_runner(mix_stderr: bool = True) -> CliRunner:
+    return CliRunner(mix_stderr=mix_stderr)
 
 
 @pytest.fixture
@@ -287,8 +287,9 @@ class TestValidateOptions:
                 ],
             )
 
-        assert result.exit_code == 0, f"Output: {result.output}\nError: {result.stderr}"
-        assert "cost" in result.stderr.lower() or "web search" in result.stderr.lower()
+        assert result.exit_code == 0, f"Output: {result.output}"
+        # Warning goes through Rich console (stderr), but CliRunner mixes by default
+        assert "cost" in result.output.lower() or "web search" in result.output.lower()
 
     def test_input_file_reads_domains(self, mock_client_fixture, tmp_path) -> None:
         """--input FILE reads domains from the file."""
