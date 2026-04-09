@@ -87,7 +87,7 @@ class TestDiscoGenRunSubmitsAndPolls:
                 ["discogen", "run", "--prompt", "Summarize this company", "--domain", "acme.com", "--yes"],
             )
 
-        assert result.exit_code == 0, f"Output: {result.output}\nError: {result.stderr}"
+        assert result.exit_code == 0, f"Output: {result.output}"
         mock_client_fixture.discogen_submit.assert_called_once()
         call_params = mock_client_fixture.discogen_submit.call_args[0][0]
         assert call_params["prompt"] == "Summarize this company"
@@ -116,7 +116,7 @@ class TestDiscoGenRunSubmitsAndPolls:
                 ],
             )
 
-        assert result.exit_code == 0, f"Output: {result.output}\nError: {result.stderr}"
+        assert result.exit_code == 0, f"Output: {result.output}"
         call_params = mock_client_fixture.discogen_submit.call_args[0][0]
         assert call_params.get("context_mode") == "domain"
 
@@ -139,7 +139,7 @@ class TestDiscoGenRunSubmitsAndPolls:
                     ["discogen", "run", "--prompt", "Describe", "--domain", "acme.com", "--yes"],
                 )
 
-        assert result.exit_code == 0, f"Output: {result.output}\nError: {result.stderr}"
+        assert result.exit_code == 0, f"Output: {result.output}"
         assert any("dg-test-001" in str(c) for c in save_task_calls), (
             f"Expected save_task('dg-test-001') to be called, got: {save_task_calls}"
         )
@@ -174,9 +174,9 @@ class TestDiscoGenRunOptions:
                 ],
             )
 
-        assert result.exit_code == 0, f"Output: {result.output}\nError: {result.stderr}"
-        combined = result.output + result.stderr
-        assert "web search" in combined.lower() or "cost" in combined.lower()
+        assert result.exit_code == 0, f"Output: {result.output}"
+        # Warning goes to stderr (mixed into output in non-mix_stderr mode)
+        assert "web search" in result.output.lower() or "cost" in result.output.lower()
 
     def test_discogen_run_preflight_estimate(self, mock_client_fixture) -> None:
         """Pre-flight cost estimate is shown before submission."""
@@ -195,10 +195,9 @@ class TestDiscoGenRunOptions:
                 ["discogen", "run", "--prompt", "Describe", "--domain", "acme.com", "--yes"],
             )
 
-        assert result.exit_code == 0, f"Output: {result.output}\nError: {result.stderr}"
-        combined = result.output + result.stderr
+        assert result.exit_code == 0, f"Output: {result.output}"
         # Pre-flight estimate should show domain count or cost info
-        assert "estimate" in combined.lower() or "cost" in combined.lower() or "domain" in combined.lower()
+        assert "estimate" in result.output.lower() or "cost" in result.output.lower() or "domain" in result.output.lower()
 
     def test_discogen_run_yes_skips_confirm(self, mock_client_fixture) -> None:
         """--yes flag skips confirmation prompt."""
@@ -217,7 +216,7 @@ class TestDiscoGenRunOptions:
                 ["discogen", "run", "--prompt", "Describe", "--domain", "acme.com", "--yes"],
             )
 
-        assert result.exit_code == 0, f"Output: {result.output}\nError: {result.stderr}"
+        assert result.exit_code == 0, f"Output: {result.output}"
 
     def test_discogen_run_non_tty_no_yes_errors(self, mock_client_fixture) -> None:
         """Non-interactive without --yes exits with code 2."""
@@ -231,7 +230,7 @@ class TestDiscoGenRunOptions:
                 ["discogen", "run", "--prompt", "Describe", "--domain", "acme.com"],
             )
 
-        assert result.exit_code == 2, f"Output: {result.output}\nError: {result.stderr}"
+        assert result.exit_code == 2, f"Output: {result.output}"
 
     def test_discogen_run_web_search_passes_param(self, mock_client_fixture) -> None:
         """--web-search flag adds web_search=True to submit params."""
@@ -256,7 +255,7 @@ class TestDiscoGenRunOptions:
                 ],
             )
 
-        assert result.exit_code == 0, f"Output: {result.output}\nError: {result.stderr}"
+        assert result.exit_code == 0, f"Output: {result.output}"
         call_params = mock_client_fixture.discogen_submit.call_args[0][0]
         assert call_params.get("web_search") is True
 
@@ -280,7 +279,7 @@ class TestDiscoGenRunOptions:
                 ["discogen", "run", "--prompt", "Describe", "--input", str(domains_file), "--yes"],
             )
 
-        assert result.exit_code == 0, f"Output: {result.output}\nError: {result.stderr}"
+        assert result.exit_code == 0, f"Output: {result.output}"
         call_params = mock_client_fixture.discogen_submit.call_args[0][0]
         assert "acme.com" in call_params["domains"]
         assert "stripe.com" in call_params["domains"]
@@ -314,7 +313,7 @@ class TestDiscoGenPersonas:
                 ],
             )
 
-        assert result.exit_code == 0, f"Output: {result.output}\nError: {result.stderr}"
+        assert result.exit_code == 0, f"Output: {result.output}"
         mock_client_fixture.discogen_personas_submit.assert_called_once()
 
     def test_discogen_personas_context_modes(self, mock_client_fixture, tmp_path) -> None:
@@ -391,7 +390,7 @@ class TestDiscoGenPersonas:
                 ],
             )
 
-        assert result.exit_code == 0, f"Output: {result.output}\nError: {result.stderr}"
+        assert result.exit_code == 0, f"Output: {result.output}"
         call_params = mock_client_fixture.discogen_personas_submit.call_args[0][0]
         assert call_params.get("web_search") is True
 
@@ -419,7 +418,7 @@ class TestDiscoGenInterimResults:
                 ["discogen", "run", "--prompt", "Describe", "--domain", "acme.com", "--yes"],
             )
 
-        assert result.exit_code == 0, f"Output: {result.output}\nError: {result.stderr}"
+        assert result.exit_code == 0, f"Output: {result.output}"
         # Verify poll was called with on_result keyword arg
         call_kwargs = MockTaskMgr.return_value.poll.call_args
         assert call_kwargs is not None

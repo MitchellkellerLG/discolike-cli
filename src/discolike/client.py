@@ -445,6 +445,13 @@ class DiscoLikeClient:
             return {"task_id": "dry-run-task-id", "status": "in_progress"}
         return self._post_json("/discogen/process", params)
 
+    def discogen_personas_submit(self, params: dict[str, Any]) -> dict[str, Any]:
+        """POST /discogen/process-personas -> raw response dict including task_id."""
+        if self._dry_run:
+            self._cost.estimate("discogen-personas", 0)
+            return {"task_id": "dry-run-task-id", "status": "in_progress"}
+        return self._post_json("/discogen/process-personas", params)
+
     def validate_icp_submit(self, params: dict[str, Any]) -> dict[str, Any]:
         """POST /validate/icp -> raw response dict including task_id."""
         if self._dry_run:
