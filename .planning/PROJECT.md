@@ -28,6 +28,8 @@ The feedback loop between Claude Code's client context and DiscoLike's search mo
 - ✓ Account status and usage (`account status/usage`) — v1
 - ✓ Agent-native design (SKILL.md, structured exit codes, `_meta` blocks) — v1
 - ✓ Shared async task infrastructure (AsyncTaskManager, SQLite persistence, client submit/status/cancel, Ctrl+C safety, backoff polling) — Phase 1
+- ✓ ICP validation command (`discolike validate`) with sorted results, triple input, pipe integration, context modes — Phase 2
+- ✓ DiscoGen enrichment commands (`discolike discogen run` + `discogen personas`) with interim display, cost estimates, web-search warnings — Phase 2
 
 ### Active
 
@@ -35,15 +37,15 @@ The feedback loop between Claude Code's client context and DiscoLike's search mo
 - [ ] **LOOP-02**: Convergence flow — iterate query plan until user/agent confirms, then execute full TAM query
 - [ ] **LOOP-03**: `--confirm` flag on `discover` to enable feedback loop mode (vs one-shot default)
 - [ ] **LOOP-04**: Machine-readable query plan output (`--json`) for Claude Code agent integration
-- [ ] **VAL-01**: `discolike validate` command wrapping `/validate/icp` — score domains against ICP description
-- [ ] **VAL-02**: Async task polling with progress display for validation jobs
-- [ ] **VAL-03**: Integration with discover output — pipe discovery results directly to validation
-- [ ] **GEN-01**: `discolike discogen` command wrapping `/discogen/process` — run LLM prompts against domains
-- [ ] **GEN-02**: `discolike discogen personas` wrapping `/discogen/process-personas` — LLM prompts against contacts
-- [ ] **GEN-03**: Async task management (status polling, cancel, interim results display)
-- [ ] **GEN-04**: Context mode selection (`website`, `profile`, `domain`)
-- [ ] **GEN-05**: BYOM support — `discolike llm-providers` config commands
-- [ ] **GEN-06**: BYOS support — `discolike search-providers` config commands
+- [x] **VAL-01**: `discolike validate` command wrapping `/validate/icp` — score domains against ICP description — Phase 2
+- [x] **VAL-02**: Async task polling with progress display for validation jobs — Phase 2
+- [x] **VAL-03**: Integration with discover output — pipe discovery results directly to validation — Phase 2
+- [x] **GEN-01**: `discolike discogen` command wrapping `/discogen/process` — run LLM prompts against domains — Phase 2
+- [x] **GEN-02**: `discolike discogen personas` wrapping `/discogen/process-personas` — LLM prompts against contacts — Phase 2
+- [x] **GEN-03**: Async task management (status polling, cancel, interim results display) — Phase 2
+- [x] **GEN-04**: Context mode selection (`website`, `profile`, `domain`) — Phase 2
+- [x] **GEN-05**: BYOM support — `discolike llm-providers` config commands — Phase 2
+- [x] **GEN-06**: BYOS support — `discolike search-providers` config commands — Phase 2
 - [ ] **SEG-01**: `discolike segment` command wrapping `/segment` — auto-cluster domains
 - [ ] **SEG-02**: CSV/file input for bulk segmentation
 - [ ] **SEG-03**: Async task polling with segment results display
