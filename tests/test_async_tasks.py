@@ -274,6 +274,29 @@ class TestPollCallback:
 
         assert result["status"] == "completed"
 
+    def test_on_result_callback_receives_full_dict(
+        self, manager: AsyncTaskManager, mock_client: MagicMock, cache: CacheManager
+    ) -> None:
+        """on_result receives the full poll response dict on each iteration."""
+        task_id = "t-on-result"
+        cache.save_task(task_id, "discogen")
+        mock_client.task_status.side_effect = [
+            {"task_id": task_id, "status": "in_progress", "progress": 50, "interim_results": [{"domain": "a.com"}]},
+            {"task_id": task_id, "status": "completed", "results": [{"domain": "a.com"}, {"domain": "b.com"}]},
+        ]
+        results_seen = []
+
+        def on_result(result: dict, attempt: int, elapsed: float) -> None:
+            results_seen.append(result)
+
+        with patch("time.sleep"):
+            manager.poll(task_id, on_result=on_result)
+
+        assert len(results_seen) == 2
+        assert results_seen[0]["status"] == "in_progress"
+        assert "interim_results" in results_seen[0]
+        assert results_seen[1]["status"] == "completed"
+
 
 class TestCtrlCInterrupt:
     """Test KeyboardInterrupt handling: cache write BEFORE stderr print."""

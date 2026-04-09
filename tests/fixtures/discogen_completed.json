@@ -1,0 +1,12 @@
+{
+  "task_id": "dg-test-001",
+  "status": "completed",
+  "progress": 100,
+  "results": [
+    {"domain": "acme.com", "result": "B2B SaaS focused on project management"},
+    {"domain": "stripe.com", "result": "Payment infrastructure for the internet"},
+    {"domain": "gusto.com", "result": "HR and payroll platform for SMBs"},
+    {"domain": "notion.com", "result": "All-in-one workspace for notes and docs"}
+  ],
+  "estimated_cost": 2.45
+}

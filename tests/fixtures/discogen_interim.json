@@ -1,0 +1,10 @@
+{
+  "task_id": "dg-test-001",
+  "status": "in_progress",
+  "progress": 45,
+  "interim_results": [
+    {"domain": "acme.com", "result": "B2B SaaS focused on project management"},
+    {"domain": "stripe.com", "result": "Payment infrastructure for the internet"}
+  ],
+  "estimated_cost": 1.23
+}
