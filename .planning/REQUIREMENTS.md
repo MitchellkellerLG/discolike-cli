@@ -30,10 +30,10 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Validate ICP
 
-- [ ] **VAL-01**: `discolike validate` command accepts ICP text + domain list, submits to `/validate/icp`, polls for results
-- [ ] **VAL-02**: Results displayed as sorted action table — yes+high at top, no+high as exclusion candidates
-- [ ] **VAL-03**: Pipe integration — accepts domain list from stdin or `--input` file, enabling `discolike discover ... | discolike validate`
-- [ ] **VAL-04**: Context mode selection (`website`, `profile`, `domain`) with cost implications displayed
+- [x] **VAL-01**: `discolike validate` command accepts ICP text + domain list, submits to `/validate/icp`, polls for results
+- [x] **VAL-02**: Results displayed as sorted action table — yes+high at top, no+high as exclusion candidates
+- [x] **VAL-03**: Pipe integration — accepts domain list from stdin or `--input` file, enabling `discolike discover ... | discolike validate`
+- [x] **VAL-04**: Context mode selection (`website`, `profile`, `domain`) with cost implications displayed
 
 ### DiscoGen
 
@@ -103,10 +103,10 @@ Requirements for this milestone. Each maps to roadmap phases.
 | LOOP-08 | Phase 3 | Pending |
 | LOOP-09 | Phase 3 | Pending |
 | LOOP-10 | Phase 3 | Pending |
-| VAL-01 | Phase 2 | Pending |
-| VAL-02 | Phase 2 | Pending |
-| VAL-03 | Phase 2 | Pending |
-| VAL-04 | Phase 2 | Pending |
+| VAL-01 | Phase 2 | Complete |
+| VAL-02 | Phase 2 | Complete |
+| VAL-03 | Phase 2 | Complete |
+| VAL-04 | Phase 2 | Complete |
 | GEN-01 | Phase 2 | Pending |
 | GEN-02 | Phase 2 | Pending |
 | GEN-03 | Phase 2 | Pending |

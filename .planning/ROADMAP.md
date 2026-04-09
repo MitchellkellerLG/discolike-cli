@@ -46,7 +46,7 @@ Plans:
   5. Interim results appear during long-running DiscoGen jobs — user sees progress before the job completes
 **Plans**: 2 plans
 Plans:
-- [ ] 02-01-PLAN.md -- Shared domain input helper + validate command (VAL-01..04)
+- [x] 02-01-PLAN.md -- Shared domain input helper + validate command (VAL-01..04)
 - [ ] 02-02-PLAN.md -- DiscoGen command group: run + personas with interim display (GEN-01..06)
 
 ### Phase 3: OLM Feedback Loop
