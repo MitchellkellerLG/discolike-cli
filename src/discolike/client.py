@@ -484,7 +484,9 @@ class DiscoLikeClient:
 def _filters_to_params(filters: dict[str, Any]) -> dict[str, Any]:
     """Convert filter dict to query param dict for GET requests.
 
-    List values become comma-separated strings.
+    List values pass through as-is so httpx serializes them as repeated
+    query keys (e.g. ?category=SAAS&category=SOFTWARE). The DiscoLike API
+    validates each list item against an enum, so comma-joining fails.
     Boolean values become lowercase strings.
     """
     params: dict[str, Any] = {}
@@ -494,7 +496,7 @@ def _filters_to_params(filters: dict[str, Any]) -> dict[str, Any]:
         if isinstance(val, list):
             if not val:
                 continue
-            params[key] = ",".join(str(v) for v in val)
+            params[key] = [str(v) for v in val]
         elif isinstance(val, bool):
             params[key] = str(val).lower()
         else:
