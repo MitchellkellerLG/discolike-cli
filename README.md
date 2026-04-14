@@ -2,6 +2,12 @@
 
 Standalone CLI for the DiscoLike B2B company discovery API. 65M+ domains, 180+ countries, pip-installable.
 
+---
+
+Built and maintained by **[LeadGrow](https://leadgrow.ai)** — the B2B GTM agency that built this to run its own outbound at scale. If you want done-for-you outbound, [book a call](https://leadgrow.ai).
+
+---
+
 ## Install
 
 ```bash
