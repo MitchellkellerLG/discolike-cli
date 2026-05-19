@@ -30,26 +30,30 @@ def llm_providers_list(ctx: click.Context) -> None:
 
 
 @llm_providers.command("set")
-@click.option("--provider", required=True, help="Provider name (e.g. openai, anthropic)")
+@click.option("--integration-name", required=True, help="User-friendly name for this integration")
+@click.option("--provider", required=True, help="Provider name (e.g. openai, anthropic, deepseek)")
 @click.option("--api-key", required=True, help="API key for the provider")
-@click.option("--model", default=None, help="Default model (e.g. gpt-4o)")
+@click.option("--model-name", required=True, help="Model name in LiteLLM format (e.g. openai/gpt-4o, deepseek/deepseek-chat)")
 @click.option("--base-url", default=None, help="Custom base URL for self-hosted")
 @handle_errors
 @click.pass_context
 def llm_providers_set(
     ctx: click.Context,
+    integration_name: str,
     provider: str,
     api_key: str,
-    model: str | None,
+    model_name: str,
     base_url: str | None,
 ) -> None:
     """Set or update an LLM provider configuration."""
     client = get_client(ctx)
     cli_ctx = _get_context(ctx)
 
-    config: dict[str, object] = {"api_key": api_key}
-    if model:
-        config["model"] = model
+    config: dict[str, object] = {
+        "integration_name": integration_name,
+        "api_key": api_key,
+        "model_name": model_name,
+    }
     if base_url:
         config["base_url"] = base_url
 

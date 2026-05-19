@@ -492,25 +492,25 @@ class DiscoLikeClient:
         return data
 
     def llm_providers_list(self) -> dict[str, Any]:
-        """GET /llm-providers -> list configured LLM providers."""
+        """GET /llm-providers/config -> list configured LLM providers."""
         if self._dry_run:
             self._cost.estimate("llm-providers", 0)
             return {}
 
-        data = self._get_with_params("/llm-providers")
+        data = self._get_with_params("/llm-providers/config")
         self._cost.record_call("llm-providers", 0)
         return data
 
     def llm_providers_set(
         self, provider: str, config: dict[str, Any]
     ) -> dict[str, Any]:
-        """POST /llm-providers -> update LLM provider config."""
+        """POST /llm-providers/config -> create/update LLM provider config."""
         if self._dry_run:
             self._cost.estimate("llm-providers", 0)
             return {}
 
         data = self._post_json(
-            "/llm-providers", {"provider": provider, **config}
+            "/llm-providers/config", {"provider": provider, **config}
         )
         self._cost.record_call("llm-providers", 0)
         return data
