@@ -49,7 +49,7 @@ def workflow_discover(
     primary_seed = seed_list[0]
 
     # Step 1: Account status
-    out.status("Step 1/8: Checking account status...")
+    out.status("Step 1/7: Checking account status...")
     status = client.account_status()
     if status.usage and status.usage.total_available_spend is not None:
         out.status(
@@ -59,35 +59,30 @@ def workflow_discover(
     _show_running_cost(out, client)
 
     # Step 2: Extract seed website text
-    out.status(f"Step 2/8: Extracting website text for {primary_seed}...")
+    out.status(f"Step 2/7: Extracting website text for {primary_seed}...")
     extract_result = client.extract(primary_seed)
     text_preview = (extract_result.text or "")[:200]
     if text_preview:
         out.status(f"  Preview: {text_preview}...")
     _show_running_cost(out, client)
 
-    # Step 3: Count matching domains
+    # Step 3: Count + validation discover
+    # NOTE: /count endpoint no longer accepts "domain" as a query param
+    # (API 422 as of 2026-05). Skip count and go straight to validation
+    # discover which still accepts "domain" on /discover.
     filters: dict[str, Any] = {"domain": seed_list}
     if country:
         filters["country"] = list(country)
 
-    out.status("Step 3/8: Counting matching domains...")
-    count_result = client.count(filters)
-    out.status(f"  Found {count_result.count:,} matching domains")
-    _show_running_cost(out, client)
-
-    if count_result.count == 0:
-        out.warning("No matching domains found. Try different seeds or filters.")
-        return
-
-    # Step 4: Validation discover (10 records)
-    out.status("Step 4/8: Validation discovery (10 records)...")
+    out.status("Step 3/7: Validation discovery (10 records)...")
     validation = client.discover(filters=filters, max_records=10)
     out.status(f"  Got {len(validation.records)} validation records")
 
-    if validation.records:
-        out.render(validation, title="Validation Results (top 10)")
+    if not validation.records:
+        out.warning("No matching domains found. Try different seeds or filters.")
+        return
 
+    out.render(validation, title="Validation Results (top 10)")
     _show_running_cost(out, client)
 
     # Interactive confirmation
@@ -98,24 +93,24 @@ def workflow_discover(
             out.status("Workflow cancelled by user.")
             return
 
-    # Step 5: Full discovery
-    out.status(f"Step 5/8: Full discovery ({max_records} records)...")
+    # Step 4: Full discovery
+    out.status(f"Step 4/7: Full discovery ({max_records} records)...")
     full_result = client.discover(filters=filters, max_records=max_records)
     out.status(f"  Got {len(full_result.records)} records")
     _show_running_cost(out, client)
 
-    # Step 6: Enrich top N
+    # Step 5: Enrich top N
     enriched_records: list[dict[str, Any]] = []
     if enrich_top > 0 and full_result.records:
         top_domains = [r.domain for r in full_result.records[:enrich_top]]
-        out.status(f"Step 6/8: Enriching top {len(top_domains)} results...")
+        out.status(f"Step 5/7: Enriching top {len(top_domains)} results...")
         for i, domain in enumerate(top_domains, 1):
             out.status(f"  Enriching {i}/{len(top_domains)}: {domain}")
             profile = client.business_profile(domain)
             enriched_records.append(profile.model_dump(mode="json"))
         _show_running_cost(out, client)
     else:
-        out.status("Step 6/8: Skipping enrichment (enrich-top=0)")
+        out.status("Step 5/7: Skipping enrichment (enrich-top=0)")
 
     # Step 7: Export CSV
     all_records = [r.model_dump(mode="json") for r in full_result.records]
@@ -126,7 +121,7 @@ def workflow_discover(
             record.update(enriched_map[record["domain"]])
 
     output_path = output or auto_csv_name(primary_seed)
-    out.status(f"Step 7/8: Exporting to {output_path}...")
+    out.status(f"Step 6/7: Exporting to {output_path}...")
 
     if str(output_path).endswith(".json"):
         from discolike.exporters.json_export import export_json
@@ -137,19 +132,19 @@ def workflow_discover(
 
     out.success(f"  Saved {len(all_records)} records to {output_path}")
 
-    # Step 8: Save exclusion list
+    # Step 7: Save exclusion list
     if save_exclusion:
         domains_to_save = [r["domain"] for r in all_records if r.get("domain")]
         exclusion_name = (
             f"{primary_seed} - Discovery - {datetime.date.today().isoformat()}"
         )
         out.status(
-            f"Step 8/8: Saving exclusion list ({len(domains_to_save)} domains)..."
+            f"Step 7/7: Saving exclusion list ({len(domains_to_save)} domains)..."
         )
         client.save_exclusion(exclusion_name, domains_to_save)
         out.success(f"  Saved exclusion list: {exclusion_name}")
     else:
-        out.status("Step 8/8: Skipping exclusion save (use --save-exclusion to enable)")
+        out.status("Step 7/7: Skipping exclusion save (use --save-exclusion to enable)")
 
     _show_running_cost(out, client)
 

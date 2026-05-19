@@ -17,7 +17,6 @@ BASE_URL = "https://api.discolike.com/v1"
 def _mock_discover_workflow(
     account_fixture: dict | None = None,
     extract_fixture: dict | None = None,
-    count_response: dict | None = None,
     discover_fixture: dict | None = None,
     profile_fixture: dict | None = None,
     exclusion_fixture: dict | None = None,
@@ -25,7 +24,6 @@ def _mock_discover_workflow(
     """Set up all mocks for the 8-step workflow."""
     account = account_fixture or load_fixture("account_status.json")
     extract = extract_fixture or load_fixture("extract_result.json")
-    count_resp = count_response or {"count": 1500}
     discover = discover_fixture or load_fixture("discover_results.json")
     profile = profile_fixture or load_fixture("business_profile.json")
     exclusion = exclusion_fixture or load_fixture("save_exclusion.json")
@@ -38,14 +36,11 @@ def _mock_discover_workflow(
     respx.get(f"{BASE_URL}/extract").mock(
         return_value=httpx.Response(200, json=extract)
     )
-    # Step 3: count
-    respx.get(f"{BASE_URL}/count").mock(
-        return_value=httpx.Response(200, json=count_resp)
-    )
-    # Steps 4+5: discover (called twice -- validation + full)
+    # Step 3: validation discover (count step skipped — API 422 on domain)
     respx.get(f"{BASE_URL}/discover").mock(
         return_value=httpx.Response(200, json=discover)
     )
+    # Step 5: full discover uses same mock (called twice total)
     # Step 6: business profiles
     respx.get(f"{BASE_URL}/bizdata").mock(
         return_value=httpx.Response(200, json=profile)
@@ -140,8 +135,9 @@ class TestWorkflowDiscover:
         assert len(exclusion_calls) == 1
 
     @respx.mock
-    def test_workflow_zero_count_exits_early(self, tmp_path: Path) -> None:
-        _mock_discover_workflow(count_response={"count": 0})
+    def test_workflow_zero_validation_exits_early(self, tmp_path: Path) -> None:
+        """Exit early when validation discover returns 0 records."""
+        _mock_discover_workflow(discover_fixture={"records": [], "count": 0})
         output_file = tmp_path / "results.csv"
         runner = make_cli_runner()
         result = runner.invoke(
@@ -179,7 +175,7 @@ class TestWorkflowDiscover:
         urls = [str(c.request.url) for c in respx.calls]
         assert sum(1 for u in urls if "/usage" in u) == 1
         assert sum(1 for u in urls if "/extract" in u) == 1
-        assert sum(1 for u in urls if "/count" in u) == 1
+        assert sum(1 for u in urls if "/count" in u) == 0  # /count skipped — API 422 on domain
         assert sum(1 for u in urls if "/discover" in u) == 2
         assert sum(1 for u in urls if "/bizdata" in u) == 2
 
@@ -220,12 +216,11 @@ class TestWorkflowDiscover:
         )
         assert result.exit_code == 0
         # Check that progress steps appear in stderr
-        assert "Step 1/8" in result.stderr
-        assert "Step 2/8" in result.stderr
-        assert "Step 3/8" in result.stderr
-        assert "Step 4/8" in result.stderr
-        assert "Step 5/8" in result.stderr
-        assert "Step 7/8" in result.stderr
+        assert "Step 1/7" in result.stderr
+        assert "Step 2/7" in result.stderr
+        assert "Step 3/7" in result.stderr
+        assert "Step 4/7" in result.stderr
+        assert "Step 6/7" in result.stderr
         assert "Running cost" in result.stderr
 
 
