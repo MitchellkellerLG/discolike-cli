@@ -40,9 +40,13 @@ PLAN_LEVELS = ["starter", "pro", "team", "company", "enterprise"]
 # Features requiring minimum plan level
 PLAN_GATED_FEATURES: dict[str, str] = {
     "contacts": "team",
+    "contact_match": "team",
+    "contact_bulk_match": "team",
     "match": "team",
+    "bulk_match": "team",
     "vendors": "team",
     "subsidiaries": "enterprise",
+    "segment": "pro",
 }
 
 CATEGORIES = [

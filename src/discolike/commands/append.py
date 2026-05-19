@@ -52,8 +52,7 @@ def append(
 
     cli_ctx.output.status(f"Enriching {len(domains)} domains...")
 
-    results = client.append(domains, fields)
-    records = [r.model_dump(mode="json") for r in results]
+    records = client.append(domains, fields)
 
     output_path = Path(output)
     if output_path.suffix.lower() == ".csv":

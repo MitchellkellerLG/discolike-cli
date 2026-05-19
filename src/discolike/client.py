@@ -408,13 +408,23 @@ class DiscoLikeClient:
 
     def append(
         self, domains: list[str], fields: list[str]
-    ) -> list[BusinessProfile]:
-        """Batch wrapper: get business_profile for multiple domains."""
-        results = []
-        for domain in domains:
-            profile = self.business_profile(domain, fields=fields)
-            results.append(profile)
-        return results
+    ) -> list[dict[str, Any]]:
+        """POST /append -> bulk firmographic data append.
+
+        Sends all domains in a single POST request with JSON body.
+        Returns a list of profile dicts keyed by domain.
+        """
+        if self._dry_run:
+            self._cost.estimate("append", len(domains))
+            return []
+
+        data = self._post_json(
+            "/append",
+            {"domains": domains, "fields": fields},
+        )
+        records = data.get("results", data.get("records", []))
+        self._cost.record_call("append", len(records))
+        return records
 
     def vendors(self, domain: str) -> dict[str, Any]:
         """GET /vendors?domain=<domain> -> dict."""
@@ -434,6 +444,99 @@ class DiscoLikeClient:
 
         data = self._get_with_params("/subsidiaries", {"domain": domain})
         self._cost.record_call("subsidiaries", 0)
+        return data
+
+    def contact_match(
+        self, name: str, company: str | None = None
+    ) -> dict[str, Any]:
+        """GET /contacts/match?name=<name>&company=<company> -> dict."""
+        if self._dry_run:
+            self._cost.estimate("contacts/match", 0)
+            return {}
+
+        params: dict[str, Any] = {"name": name}
+        if company:
+            params["company"] = company
+        data = self._get_with_params("/contacts/match", params)
+        self._cost.record_call("contacts/match", 0)
+        return data
+
+    def contact_bulk_match(
+        self, names: list[dict[str, str]]
+    ) -> dict[str, Any]:
+        """POST /contacts/bulk-match -> bulk contact lookup.
+
+        Args:
+            names: List of {"name": "...", "company": "..." (optional)} dicts.
+        """
+        if self._dry_run:
+            self._cost.estimate("contacts/bulk-match", len(names))
+            return {}
+
+        data = self._post_json("/contacts/bulk-match", {"contacts": names})
+        self._cost.record_call(
+            "contacts/bulk-match", len(data.get("results", []))
+        )
+        return data
+
+    def bulk_match(self, names: list[str]) -> dict[str, Any]:
+        """POST /match/bulk -> bulk company name -> domain matching."""
+        if self._dry_run:
+            self._cost.estimate("match/bulk", len(names))
+            return {}
+
+        data = self._post_json("/match/bulk", {"names": names})
+        self._cost.record_call(
+            "match/bulk", len(data.get("results", []))
+        )
+        return data
+
+    def llm_providers_list(self) -> dict[str, Any]:
+        """GET /llm-providers -> list configured LLM providers."""
+        if self._dry_run:
+            self._cost.estimate("llm-providers", 0)
+            return {}
+
+        data = self._get_with_params("/llm-providers")
+        self._cost.record_call("llm-providers", 0)
+        return data
+
+    def llm_providers_set(
+        self, provider: str, config: dict[str, Any]
+    ) -> dict[str, Any]:
+        """POST /llm-providers -> update LLM provider config."""
+        if self._dry_run:
+            self._cost.estimate("llm-providers", 0)
+            return {}
+
+        data = self._post_json(
+            "/llm-providers", {"provider": provider, **config}
+        )
+        self._cost.record_call("llm-providers", 0)
+        return data
+
+    def search_providers_list(self) -> dict[str, Any]:
+        """GET /search-providers -> list configured search providers."""
+        if self._dry_run:
+            self._cost.estimate("search-providers", 0)
+            return {}
+
+        data = self._get_with_params("/search-providers")
+        self._cost.record_call("search-providers", 0)
+        return data
+
+    def search_providers_set(
+        self, provider: str, config: dict[str, Any]
+    ) -> dict[str, Any]:
+        """POST /search-providers -> update search provider config."""
+        if self._dry_run:
+            self._cost.estimate("search-providers", 0)
+            return {}
+
+        data = self._post_json(
+            "/search-providers", {"provider": provider, **config}
+        )
+        self._cost.record_call("search-providers", 0)
         return data
 
     # --- Async task methods ---

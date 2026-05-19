@@ -121,7 +121,10 @@ cli.add_command(costs)
 from discolike.commands.append import append  # noqa: E402
 from discolike.commands.contacts import contacts  # noqa: E402
 from discolike.commands.discogen import discogen  # noqa: E402
+from discolike.commands.llm_providers import llm_providers  # noqa: E402
 from discolike.commands.match import match  # noqa: E402
+from discolike.commands.search_providers import search_providers  # noqa: E402
+from discolike.commands.segment import segment  # noqa: E402
 from discolike.commands.subsidiaries import subsidiaries  # noqa: E402
 from discolike.commands.validate import validate  # noqa: E402
 from discolike.commands.vendors import vendors  # noqa: E402
@@ -135,3 +138,6 @@ cli.add_command(subsidiaries)
 cli.add_command(workflow)
 cli.add_command(validate)
 cli.add_command(discogen)
+cli.add_command(llm_providers)
+cli.add_command(search_providers)
+cli.add_command(segment)
