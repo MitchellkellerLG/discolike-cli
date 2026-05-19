@@ -66,22 +66,15 @@ def workflow_discover(
         out.status(f"  Preview: {text_preview}...")
     _show_running_cost(out, client)
 
-    # Step 3: Count matching domains
+    # Step 3: Count + validation discover
+    # NOTE: /count endpoint no longer accepts "domain" as a query param
+    # (API 422 as of 2026-05). Skip count and go straight to validation
+    # discover which still accepts "domain" on /discover.
     filters: dict[str, Any] = {"domain": seed_list}
     if country:
         filters["country"] = list(country)
 
-    out.status("Step 3/8: Counting matching domains...")
-    count_result = client.count(filters)
-    out.status(f"  Found {count_result.count:,} matching domains")
-    _show_running_cost(out, client)
-
-    if count_result.count == 0:
-        out.warning("No matching domains found. Try different seeds or filters.")
-        return
-
-    # Step 4: Validation discover (10 records)
-    out.status("Step 4/8: Validation discovery (10 records)...")
+    out.status("Step 3/8: Validation discovery (10 records)...")
     validation = client.discover(filters=filters, max_records=10)
     out.status(f"  Got {len(validation.records)} validation records")
 
