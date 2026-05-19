@@ -528,14 +528,21 @@ class DiscoLikeClient:
     def search_providers_set(
         self, provider: str, config: dict[str, Any]
     ) -> dict[str, Any]:
-        """POST /search-providers -> update search provider config."""
+        """POST /search-providers -> update search provider config.
+
+        API expects: integration_name, provider, search_model, api_key.
+        """
         if self._dry_run:
             self._cost.estimate("search-providers", 0)
             return {}
 
-        data = self._post_json(
-            "/search-providers", {"provider": provider, **config}
-        )
+        body = {
+            "integration_name": config.get("integration_name", provider),
+            "provider": provider,
+            "search_model": config.get("search_model", "default"),
+            "api_key": config.get("api_key", ""),
+        }
+        data = self._post_json("/search-providers", body)
         self._cost.record_call("search-providers", 0)
         return data
 

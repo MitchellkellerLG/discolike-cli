@@ -32,22 +32,34 @@ def search_providers_list(ctx: click.Context) -> None:
 @search_providers.command("set")
 @click.option("--provider", required=True, help="Provider name (e.g. serper, brave)")
 @click.option("--api-key", required=True, help="API key for the provider")
-@click.option("--base-url", default=None, help="Custom base URL for self-hosted")
+@click.option(
+    "--integration-name",
+    default=None,
+    help="Display name (defaults to provider name)",
+)
+@click.option(
+    "--search-model",
+    default="default",
+    help="Search model identifier (e.g. serper/search)",
+)
 @handle_errors
 @click.pass_context
 def search_providers_set(
     ctx: click.Context,
     provider: str,
     api_key: str,
-    base_url: str | None,
+    integration_name: str | None,
+    search_model: str,
 ) -> None:
     """Set or update a search provider configuration."""
     client = get_client(ctx)
     cli_ctx = _get_context(ctx)
 
-    config: dict[str, object] = {"api_key": api_key}
-    if base_url:
-        config["base_url"] = base_url
+    config: dict[str, str] = {
+        "api_key": api_key,
+        "integration_name": integration_name or provider,
+        "search_model": search_model,
+    }
 
     result = client.search_providers_set(provider, config)
 
