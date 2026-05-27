@@ -63,6 +63,11 @@ def _sort_key(row: dict[str, Any]) -> tuple[int, int]:
     default=False,
     help="Skip confirmation prompt (required in non-interactive mode)",
 )
+@click.option(
+    "--integration-id",
+    default=None,
+    help="LLM provider integration ID (from llm-providers list)",
+)
 @handle_errors
 @click.pass_context
 def validate(
@@ -73,6 +78,7 @@ def validate(
     context_mode: str,
     web_search: bool,
     auto_confirm: bool,
+    integration_id: str | None,
 ) -> None:
     """Score domains against an ICP description.
 
@@ -113,6 +119,8 @@ def validate(
     }
     if web_search:
         params["web_search"] = True
+    if integration_id:
+        params["integration_id"] = integration_id
 
     # Step 6: Submit task
     submit_resp = client.validate_icp_submit(params)

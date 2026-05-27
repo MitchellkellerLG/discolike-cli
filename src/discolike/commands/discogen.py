@@ -94,6 +94,11 @@ def discogen() -> None:
     default=False,
     help="Skip confirmation prompt (required in non-interactive mode)",
 )
+@click.option(
+    "--integration-id",
+    default=None,
+    help="LLM provider integration ID (from llm-providers list)",
+)
 @handle_errors
 @click.pass_context
 def discogen_run(
@@ -104,6 +109,7 @@ def discogen_run(
     context_mode: str,
     web_search: bool,
     auto_confirm: bool,
+    integration_id: str | None,
 ) -> None:
     """Run an LLM prompt against each domain in a list.
 
@@ -138,12 +144,14 @@ def discogen_run(
 
     # Step 5: Build submit params
     params: dict[str, Any] = {
-        "prompt": prompt,
+        "query": prompt,
         "domains": domains,
         "context_mode": context_mode,
     }
     if web_search:
         params["web_search"] = True
+    if integration_id:
+        params["integration_id"] = integration_id
 
     # Step 6: Submit task
     submit_resp = client.discogen_submit(params)
@@ -206,6 +214,11 @@ def discogen_run(
     default=False,
     help="Skip confirmation prompt (required in non-interactive mode)",
 )
+@click.option(
+    "--integration-id",
+    default=None,
+    help="LLM provider integration ID (from llm-providers list)",
+)
 @handle_errors
 @click.pass_context
 def discogen_personas(
@@ -216,6 +229,7 @@ def discogen_personas(
     context_mode: str,
     web_search: bool,
     auto_confirm: bool,
+    integration_id: str | None,
 ) -> None:
     """Run an LLM prompt against each persona in a list.
 
@@ -251,12 +265,14 @@ def discogen_personas(
 
     # Step 5: Build submit params
     params: dict[str, Any] = {
-        "prompt": prompt,
+        "query": prompt,
         "persona_ids": persona_ids,
         "context_mode": context_mode,
     }
     if web_search:
         params["web_search"] = True
+    if integration_id:
+        params["integration_id"] = integration_id
 
     # Step 6: Submit task
     submit_resp = client.discogen_personas_submit(params)
