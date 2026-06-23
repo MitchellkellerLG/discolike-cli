@@ -8,7 +8,6 @@ from pathlib import Path
 from typing import Any
 
 import click
-from rich.progress import Progress
 
 from discolike.cli import _get_context, get_client
 from discolike.errors import handle_errors
@@ -210,31 +209,25 @@ def workflow_enrich_list(
 
     out.status(f"Enriching {len(domains)} domains with: {', '.join(sorted(requested))}")
 
-    results: list[dict[str, Any]] = []
-    with Progress() as progress:
-        task = progress.add_task("Enriching...", total=len(domains))
+    # Map logical field names to /append field tokens
+    _FIELD_MAP: dict[str, list[str]] = {
+        "profile": ["name", "description", "industry_groups", "address", "public_emails",
+                    "social_urls", "status", "score"],
+        "score": ["digital_footprint_score", "score_parameters"],
+        "growth": ["score_growth_3m", "subdomain_growth_3m"],
+    }
+    fields: list[str] = []
+    for ftype in sorted(requested):
+        fields.extend(_FIELD_MAP.get(ftype, [ftype]))
 
-        for domain in domains:
-            record: dict[str, Any] = {"domain": domain}
+    # Single batch call instead of N*types sequential calls
+    raw_records = client.append(domains, fields)
 
-            if "profile" in requested:
-                profile = client.business_profile(domain)
-                record.update(profile.model_dump(mode="json"))
-
-            if "score" in requested:
-                score_result = client.score(domain)
-                score_data = score_result.model_dump(mode="json")
-                record["digital_footprint_score"] = score_data.get("score")
-                record["score_parameters"] = score_data.get("parameters")
-
-            if "growth" in requested:
-                growth_result = client.growth(domain)
-                growth_data = growth_result.model_dump(mode="json")
-                record["score_growth_3m"] = growth_data.get("score_growth_3m")
-                record["subdomain_growth_3m"] = growth_data.get("subdomain_growth_3m")
-
-            results.append(record)
-            progress.update(task, advance=1)
+    # Normalise: ensure every domain has a record (fill gaps with domain-only dict)
+    by_domain = {r.get("domain", ""): r for r in raw_records}
+    results: list[dict[str, Any]] = [
+        by_domain.get(d, {"domain": d}) for d in domains
+    ]
 
     # Export
     output_path = Path(output)
