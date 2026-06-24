@@ -26,9 +26,10 @@ from discolike.constants import CACHE_DB
 class DataCache:
     """TTL-based key/value cache backed by SQLite."""
 
-    def __init__(self, db_path: Path) -> None:
+    def __init__(self, db_path: Path, conn: sqlite3.Connection | None = None) -> None:
         self._db_path = db_path
-        self._conn = sqlite3.connect(str(db_path))
+        self._owns_conn = conn is None
+        self._conn = conn if conn is not None else sqlite3.connect(str(db_path))
         self._conn.execute("""
             CREATE TABLE IF NOT EXISTS cache (
                 key TEXT PRIMARY KEY,
@@ -79,7 +80,8 @@ class DataCache:
         }
 
     def close(self) -> None:
-        self._conn.close()
+        if self._owns_conn:
+            self._conn.close()
 
 
 # ---------------------------------------------------------------------------
@@ -90,8 +92,9 @@ class DataCache:
 class CostLog:
     """Append-only cost ledger backed by SQLite."""
 
-    def __init__(self, db_path: Path) -> None:
-        self._conn = sqlite3.connect(str(db_path))
+    def __init__(self, db_path: Path, conn: sqlite3.Connection | None = None) -> None:
+        self._owns_conn = conn is None
+        self._conn = conn if conn is not None else sqlite3.connect(str(db_path))
         self._conn.execute("""
             CREATE TABLE IF NOT EXISTS costs (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -153,7 +156,8 @@ class CostLog:
         return cursor.rowcount
 
     def close(self) -> None:
-        self._conn.close()
+        if self._owns_conn:
+            self._conn.close()
 
 
 # ---------------------------------------------------------------------------
@@ -164,8 +168,9 @@ class CostLog:
 class TaskStore:
     """Async task lifecycle persistence backed by SQLite."""
 
-    def __init__(self, db_path: Path) -> None:
-        self._conn = sqlite3.connect(str(db_path))
+    def __init__(self, db_path: Path, conn: sqlite3.Connection | None = None) -> None:
+        self._owns_conn = conn is None
+        self._conn = conn if conn is not None else sqlite3.connect(str(db_path))
         self._conn.execute("""
             CREATE TABLE IF NOT EXISTS tasks (
                 task_id TEXT PRIMARY KEY,
@@ -238,7 +243,8 @@ class TaskStore:
         ]
 
     def close(self) -> None:
-        self._conn.close()
+        if self._owns_conn:
+            self._conn.close()
 
 
 # ---------------------------------------------------------------------------
@@ -259,12 +265,11 @@ class CacheManager:
         if db_path is None:
             db_path = get_config_dir() / CACHE_DB
         self._db_path = db_path
-        # All three share the same SQLite file for backwards compat.
-        self.data_cache = DataCache(db_path)
-        self.cost_log = CostLog(db_path)
-        self.task_store = TaskStore(db_path)
-        # Expose the underlying connection for tests that inspect sqlite_master.
-        self._conn = self.data_cache._conn
+        # Single shared connection — avoids "database is locked" on concurrent ops.
+        self._conn = sqlite3.connect(str(db_path))
+        self.data_cache = DataCache(db_path, conn=self._conn)
+        self.cost_log = CostLog(db_path, conn=self._conn)
+        self.task_store = TaskStore(db_path, conn=self._conn)
 
     # --- DataCache facade ---
 
@@ -319,6 +324,4 @@ class CacheManager:
         return self.task_store.list(status_filter)
 
     def close(self) -> None:
-        self.data_cache.close()
-        self.cost_log.close()
-        self.task_store.close()
+        self._conn.close()
