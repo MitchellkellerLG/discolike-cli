@@ -225,25 +225,49 @@ class TestWorkflowDiscover:
 
 
 class TestWorkflowEnrichList:
-    """Tests for the workflow enrich-list command."""
+    """Tests for the workflow enrich-list command.
+
+    enrich-list now uses POST /append for all enrichment — one batch call
+    instead of N*types sequential per-domain calls.
+    """
+
+    # Shared /append response fixture for 2 domains
+    _APPEND_2 = {
+        "results": [
+            {
+                "domain": "example-agency.com",
+                "name": "Example Agency",
+                "digital_footprint_score": 450,
+                "score_growth_3m": 5.2,
+                "subdomain_growth_3m": 1.1,
+            },
+            {
+                "domain": "outbound-pros.com",
+                "name": "Outbound Pros",
+                "digital_footprint_score": 380,
+                "score_growth_3m": 3.0,
+                "subdomain_growth_3m": 0.8,
+            },
+        ]
+    }
+    _APPEND_1 = {
+        "results": [
+            {
+                "domain": "example-agency.com",
+                "name": "Example Agency",
+                "digital_footprint_score": 450,
+                "score_growth_3m": 5.2,
+                "subdomain_growth_3m": 1.1,
+            }
+        ]
+    }
 
     @respx.mock
     def test_enrich_list_json_output(self, tmp_path: Path) -> None:
-        profile_fixture = load_fixture("business_profile.json")
-        score_fixture = load_fixture("score_result.json")
-        growth_fixture = load_fixture("growth_result.json")
-
-        respx.get(f"{BASE_URL}/bizdata").mock(
-            return_value=httpx.Response(200, json=profile_fixture)
-        )
-        respx.get(f"{BASE_URL}/score").mock(
-            return_value=httpx.Response(200, json=score_fixture)
-        )
-        respx.get(f"{BASE_URL}/growth").mock(
-            return_value=httpx.Response(200, json=growth_fixture)
+        respx.post(f"{BASE_URL}/append").mock(
+            return_value=httpx.Response(200, json=self._APPEND_2)
         )
 
-        # Create input file
         input_file = tmp_path / "domains.txt"
         input_file.write_text("example-agency.com\noutbound-pros.com\n")
         output_file = tmp_path / "enriched.json"
@@ -262,7 +286,6 @@ class TestWorkflowEnrichList:
         data = json.loads(output_file.read_text())
         assert data["count"] == 2
         assert len(data["records"]) == 2
-        # Check enrichment fields present
         rec = data["records"][0]
         assert "domain" in rec
         assert "digital_footprint_score" in rec
@@ -270,18 +293,8 @@ class TestWorkflowEnrichList:
 
     @respx.mock
     def test_enrich_list_csv_output(self, tmp_path: Path) -> None:
-        profile_fixture = load_fixture("business_profile.json")
-        score_fixture = load_fixture("score_result.json")
-        growth_fixture = load_fixture("growth_result.json")
-
-        respx.get(f"{BASE_URL}/bizdata").mock(
-            return_value=httpx.Response(200, json=profile_fixture)
-        )
-        respx.get(f"{BASE_URL}/score").mock(
-            return_value=httpx.Response(200, json=score_fixture)
-        )
-        respx.get(f"{BASE_URL}/growth").mock(
-            return_value=httpx.Response(200, json=growth_fixture)
+        respx.post(f"{BASE_URL}/append").mock(
+            return_value=httpx.Response(200, json=self._APPEND_1)
         )
 
         input_file = tmp_path / "domains.txt"
@@ -304,9 +317,9 @@ class TestWorkflowEnrichList:
 
     @respx.mock
     def test_enrich_list_profile_only(self, tmp_path: Path) -> None:
-        profile_fixture = load_fixture("business_profile.json")
-        respx.get(f"{BASE_URL}/bizdata").mock(
-            return_value=httpx.Response(200, json=profile_fixture)
+        """profile-only still uses /append, not /bizdata."""
+        respx.post(f"{BASE_URL}/append").mock(
+            return_value=httpx.Response(200, json=self._APPEND_1)
         )
 
         input_file = tmp_path / "domains.txt"
@@ -325,9 +338,9 @@ class TestWorkflowEnrichList:
         )
         assert result.exit_code == 0, f"Failed with: {result.stderr}\n{result.output}"
 
-        # Only profile endpoint should be called
         urls = [str(c.request.url) for c in respx.calls]
-        assert sum(1 for u in urls if "/bizdata" in u) == 1
+        assert sum(1 for u in urls if "/append" in u) == 1
+        assert sum(1 for u in urls if "/bizdata" in u) == 0
         assert sum(1 for u in urls if "/score" in u) == 0
         assert sum(1 for u in urls if "/growth" in u) == 0
 
@@ -368,18 +381,8 @@ class TestWorkflowEnrichList:
 
     @respx.mock
     def test_enrich_list_skips_comments_and_blank_lines(self, tmp_path: Path) -> None:
-        profile_fixture = load_fixture("business_profile.json")
-        score_fixture = load_fixture("score_result.json")
-        growth_fixture = load_fixture("growth_result.json")
-
-        respx.get(f"{BASE_URL}/bizdata").mock(
-            return_value=httpx.Response(200, json=profile_fixture)
-        )
-        respx.get(f"{BASE_URL}/score").mock(
-            return_value=httpx.Response(200, json=score_fixture)
-        )
-        respx.get(f"{BASE_URL}/growth").mock(
-            return_value=httpx.Response(200, json=growth_fixture)
+        respx.post(f"{BASE_URL}/append").mock(
+            return_value=httpx.Response(200, json=self._APPEND_2)
         )
 
         input_file = tmp_path / "domains.txt"
@@ -408,9 +411,8 @@ class TestWorkflowEnrichList:
 
     @respx.mock
     def test_enrich_list_shows_cost(self, tmp_path: Path) -> None:
-        profile_fixture = load_fixture("business_profile.json")
-        respx.get(f"{BASE_URL}/bizdata").mock(
-            return_value=httpx.Response(200, json=profile_fixture)
+        respx.post(f"{BASE_URL}/append").mock(
+            return_value=httpx.Response(200, json=self._APPEND_1)
         )
 
         input_file = tmp_path / "domains.txt"
